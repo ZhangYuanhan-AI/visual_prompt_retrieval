@@ -200,9 +200,10 @@ def generate_raw_prediction(device, ids_shuffle, len_keep, model, orig_image):
         x_temp = blk.attn.proj(x_temp)
         x_temp = blk.attn.proj_drop(x_temp)
         # Here we continue to the orignal block.
-        x = x + blk.drop_path(x_temp)
+        # import pdb;pdb.set_trace()
+        x = x + blk.drop_path1(x_temp)
 
-        x = x + blk.drop_path(blk.mlp(blk.norm2(x)))
+        x = x + blk.drop_path2(blk.mlp(blk.norm2(x)))
     x = model.decoder_norm(x)
     # predictor projection
     x = model.decoder_pred(x)

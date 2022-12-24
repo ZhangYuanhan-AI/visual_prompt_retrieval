@@ -17,19 +17,21 @@ def create_grid_from_images_old(canvas, support_img, support_mask, query_img, qu
 
 class DatasetPASCAL(Dataset):
     def __init__(self, datapath, fold, image_transform, mask_transform, padding: bool = 1, use_original_imgsize: bool = False, flipped_order: bool = False,
-                 reverse_support_and_query: bool = False, random: bool = False, ensemble: bool = False, purple: bool = False):
+                 reverse_support_and_query: bool = False, random: bool = False, ensemble: bool = False, purple: bool = False, cluster: bool = False):
         self.fold = fold
         self.nfolds = 4
         self.flipped_order = flipped_order
-        self.nclass = 20
+        self.nclass = 20 #20
+        self.ncluster = 200
         self.padding = padding
         self.random = random
         self.ensemble = ensemble
         self.purple = purple
+        self.cluster = cluster
         self.use_original_imgsize = use_original_imgsize
 
-        self.img_path = os.path.join(datapath, 'VOCdevkit/VOC2012/JPEGImages/')
-        self.ann_path = os.path.join(datapath, 'VOCdevkit/VOC2012/SegmentationClassAug/')
+        self.img_path = os.path.join(datapath, 'VOC2012/JPEGImages/')
+        self.ann_path = os.path.join(datapath, 'VOC2012/SegmentationClassAug/')
         self.image_transform = image_transform
         self.reverse_support_and_query = reverse_support_and_query
         self.mask_transform = mask_transform
@@ -37,6 +39,8 @@ class DatasetPASCAL(Dataset):
         self.class_ids = self.build_class_ids()
         self.img_metadata = self.build_img_metadata()
         self.img_metadata_classwise = self.build_img_metadata_classwise()
+        self.img_metadata_clusterwise = self.build_img_metadata_clusterwise()
+
 
     def __len__(self):
         return 1000
@@ -122,6 +126,7 @@ class DatasetPASCAL(Dataset):
 
 
     def load_frame(self, query_name, support_name):
+        # import pdb;pdb.set_trace()
         query_img = self.read_img(query_name)
         query_mask = self.read_mask(query_name)
         support_img = self.read_img(support_name)
@@ -141,13 +146,24 @@ class DatasetPASCAL(Dataset):
 
     def sample_episode(self, idx):
         """Returns the index of the query, support and class."""
-        query_name, class_sample = self.img_metadata[idx]
+        if self.cluster:
+            query_name, class_sample, cluster_sample = self.img_metadata[idx]
+        else:
+            query_name, class_sample = self.img_metadata[idx]
+
+        # import pdb;pdb.set_trace()
         if not self.random:
             support_class = class_sample
         else: 
             support_class = np.random.choice([k for k in self.img_metadata_classwise.keys() if self.img_metadata_classwise[k]], 1, replace=False)[0]
         while True:  # keep sampling support set if query == support
-            support_name = np.random.choice(self.img_metadata_classwise[support_class], 1, replace=False)[0]
+            if self.cluster:
+                if len(self.img_metadata_clusterwise[cluster_sample]) == 1:
+                    support_name = np.random.choice(self.img_metadata_classwise[support_class], 1, replace=False)[0]
+                else:
+                    support_name = np.random.choice(self.img_metadata_clusterwise[cluster_sample], 1, replace=False)[0]
+            else:
+                support_name = np.random.choice(self.img_metadata_classwise[support_class], 1, replace=False)[0]
             if query_name != support_name: 
                 break
         return query_name, support_name, class_sample, support_class
@@ -161,12 +177,22 @@ class DatasetPASCAL(Dataset):
 
         def read_metadata(split, fold_id):
             cwd = os.path.dirname(os.path.abspath(__file__))
-            fold_n_metadata = os.path.join(cwd, 'splits/pascal/%s/fold%d.txt' % (split, fold_id))
-            with open(fold_n_metadata, 'r') as f:
+            if self.cluster:
+                fold_n_metadata_path = os.path.join(cwd, 'splits/pascal/%s/fold_cluster%d.txt' % (split, fold_id))
+            else:
+                fold_n_metadata_path = os.path.join(cwd, 'splits/pascal/%s/fold%d.txt' % (split, fold_id))
+
+            with open(fold_n_metadata_path, 'r') as f:
                 fold_n_metadata = f.read().split('\n')[:-1]
-            fold_n_metadata = [[data.split('__')[0], int(data.split('__')[1]) - 1] for data in fold_n_metadata]
+            # import pdb;pdb.set_trace()
+            if self.cluster:
+                fold_n_metadata = [[data.split('__')[0], int(data.split('__')[1]) - 1, int(data.split('__')[2]) - 1] for data in fold_n_metadata]
+            else:
+                fold_n_metadata = [[data.split('__')[0], int(data.split('__')[1]) - 1] for data in fold_n_metadata]
+            
             return fold_n_metadata
 
+        # import pdb;pdb.set_trace()
         img_metadata = []
         img_metadata = read_metadata('val', self.fold)
        
@@ -179,9 +205,27 @@ class DatasetPASCAL(Dataset):
         for class_id in range(self.nclass):
             img_metadata_classwise[class_id] = []
 
-        for img_name, img_class in self.img_metadata:
-            img_metadata_classwise[img_class] += [img_name]
+        if len(self.img_metadata[0]) != 3:
+            for img_name, img_class in self.img_metadata:
+                img_metadata_classwise[img_class] += [img_name]
+        else:
+            for img_name, img_class, _ in self.img_metadata:
+                img_metadata_classwise[img_class] += [img_name]
+
+        # import pdb;pdb.set_trace()
         return img_metadata_classwise
+
+    def build_img_metadata_clusterwise(self):
+        img_metadata_clusterwise = {}
+        for class_id in range(self.ncluster):
+            img_metadata_clusterwise[class_id] = []
+
+        if self.cluster:
+            for img_name, img_class, cluster_class in self.img_metadata:
+                img_metadata_clusterwise[cluster_class] += [img_name]
+            return img_metadata_clusterwise
+        else:
+            return None
 
 class DatasetPASCALforFinetune(Dataset):
     def __init__(self, datapath, fold, image_transform, mask_transform, num_supports=1, padding: bool = 1,
@@ -314,6 +358,15 @@ class DatasetPASCALforFinetune(Dataset):
         for class_id in range(self.nclass):
             img_metadata_classwise[class_id] = []
 
-        for img_name, img_class in self.img_metadata:
+        for img_name, img_class, cluster_class in self.img_metadata:
             img_metadata_classwise[img_class] += [img_name]
         return img_metadata_classwise
+
+    def build_img_metadata_clusterwise(self):
+        img_metadata_clusterwise = {}
+        for class_id in range(self.nclass):
+            img_metadata_clusterwise[class_id] = []
+
+        for img_name, img_class, cluster_class in self.img_metadata:
+            img_metadata_clusterwise[cluster_class] += [img_name]
+        return img_metadata_clusterwise

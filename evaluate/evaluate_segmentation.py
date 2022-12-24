@@ -28,6 +28,8 @@ def get_args():
     parser.add_argument('--split', default=0, type=int)
     parser.add_argument('--purple', default=0, type=int)
     parser.add_argument('--flip', default=0, type=int)
+    parser.add_argument('--cluster', action='store_true')
+    parser.add_argument('--random', action='store_true')
     return parser
 
 
@@ -107,11 +109,12 @@ def evaluate(args):
     mask_transform = torchvision.transforms.Compose(
         [torchvision.transforms.Resize((224 // 2 - padding, 224 // 2 - padding), 3),
          torchvision.transforms.ToTensor()])
+    # import pdb;pdb.set_trace()
     ds = {
         'pascal': pascal_dataloader.DatasetPASCAL,
         'pascal_det': CanvasDataset
     }[args.dataset_type](args.base_dir, fold=args.split, image_transform=image_transform, mask_transform=mask_transform,
-                         flipped_order=args.flip, purple=args.purple)
+                         flipped_order=args.flip, purple=args.purple, random=args.random, cluster=args.cluster)
     model = prepare_model(args.ckpt, arch=args.model)
     _ = model.to(args.device)
     # Build the transforms:
@@ -123,8 +126,9 @@ def evaluate(args):
         # Calculate the original_image and the result
         original_image, generated_result = _generate_result_for_canvas(args, model, canvas)
         if args.output_dir:
-            Image.fromarray(np.uint8(original_image)).save(
-                os.path.join(args.output_dir, f'original_{idx}.png'))
+            # import pdb;pdb.set_trace()
+        #     # Image.fromarray(np.uint8(original_image)).save(
+            #     os.path.join(args.output_dir, f'original_{idx}.png'))
             Image.fromarray(np.uint8(generated_result)).save(
                 os.path.join(args.output_dir, f'generated_{idx}.png'))
         if args.purple:
@@ -132,27 +136,27 @@ def evaluate(args):
         else:
             original_image = round_image(original_image, [WHITE, BLACK])
 
-        if args.output_dir:
-            Image.fromarray(np.uint8(generated_result)).save(
-                os.path.join(args.output_dir, f'generated_before_rounding_{idx}.png'))
+        # if args.output_dir:
+        #     Image.fromarray(np.uint8(generated_result)).save(
+        #         os.path.join(args.output_dir, f'generated_before_rounding_{idx}.png'))
 
         if args.purple:
             generated_result = round_image(generated_result, [YELLOW, PURPLE], t=args.t)
         else:
             generated_result = round_image(generated_result, [WHITE, BLACK], t=args.t)
 
-        if args.output_dir:
-            Image.fromarray(np.uint8(generated_result)).save(
-                os.path.join(args.output_dir, f'generated_rounded_{idx}.png'))
+        # if args.output_dir:
+        #     Image.fromarray(np.uint8(generated_result)).save(
+        #         os.path.join(args.output_dir, f'generated_rounded_{idx}.png'))
 
         if args.task == 'detection':
             generated_result = to_rectangle(generated_result)
 
-        if args.output_dir:
-            Image.fromarray(np.uint8(original_image)).save(
-                os.path.join(args.output_dir, f'original_{idx}.png'))
-            Image.fromarray(np.uint8(generated_result)).save(
-                os.path.join(args.output_dir, f'generated_fixed_{idx}.png'))
+        # if args.output_dir:
+        #     Image.fromarray(np.uint8(original_image)).save(
+        #         os.path.join(args.output_dir, f'original_{idx}.png'))
+        #     Image.fromarray(np.uint8(generated_result)).save(
+        #         os.path.join(args.output_dir, f'generated_fixed_{idx}.png'))
         if args.purple:
             current_metric = calculate_metric(args, original_image, generated_result, fg_color=YELLOW, bg_color=PURPLE)
         else:
