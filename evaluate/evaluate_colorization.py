@@ -77,20 +77,20 @@ def evaluate(args):
         original_image, generated_result = _generate_result_for_canvas(args, model, canvas)
 
         if args.output_dir:
-            Image.fromarray(np.uint8(original_image)).save(
-                os.path.join(args.output_dir, f'original_{idx}.png'))
+            # Image.fromarray(np.uint8(original_image)).save(
+            #     os.path.join(args.output_dir, f'original_{idx}.png'))
             Image.fromarray(np.uint8(generated_result)).save(
                 os.path.join(args.output_dir, f'generated_{idx}.png'))
 
-        if args.output_dir:
-            Image.fromarray(np.uint8(generated_result)).save(
-                os.path.join(args.output_dir, f'generated_before_rounding_{idx}.png'))
-            Image.fromarray(np.uint8(generated_result)).save(
-                os.path.join(args.output_dir, f'generated_rounded_{idx}.png'))
-            Image.fromarray(np.uint8(original_image)).save(
-                os.path.join(args.output_dir, f'original_{idx}.png'))
-            Image.fromarray(np.uint8(generated_result)).save(
-                os.path.join(args.output_dir, f'generated_fixed_{idx}.png'))
+        # if args.output_dir:
+        #     Image.fromarray(np.uint8(generated_result)).save(
+        #         os.path.join(args.output_dir, f'generated_before_rounding_{idx}.png'))
+        #     Image.fromarray(np.uint8(generated_result)).save(
+        #         os.path.join(args.output_dir, f'generated_rounded_{idx}.png'))
+        #     Image.fromarray(np.uint8(original_image)).save(
+        #         os.path.join(args.output_dir, f'original_{idx}.png'))
+        #     Image.fromarray(np.uint8(generated_result)).save(
+        #         os.path.join(args.output_dir, f'generated_fixed_{idx}.png'))
 
         current_metric = calculate_metric(args, original_image, generated_result)
         with open(os.path.join(args.output_dir, 'log.txt'), 'a') as log:

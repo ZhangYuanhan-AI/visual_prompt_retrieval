@@ -128,7 +128,7 @@ class VOCDetection(VisionDataset):
         self.CLASS_NAMES = CLASS_NAMES
         self.MAX_NUM_OBJECTS = 64
         self.no_cats = no_cats
-        self.support_set = torch.load('/shared/amir/dataset/pascal/2012_support_set.pth') # TODO: save in original datapath (PD right now)
+        # self.support_set = torch.load('/shared/amir/dataset/pascal/2012_support_set.pth') # TODO: save in original datapath (PD right now)
         self.val_flattened_set = torch.load('/shared/amir/dataset/pascal/2012_val_flattened_set.pth')
 
 

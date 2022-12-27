@@ -125,12 +125,12 @@ def evaluate(args):
             canvas = (canvas - imagenet_mean[:, None, None]) / imagenet_std[:, None, None]
         # Calculate the original_image and the result
         original_image, generated_result = _generate_result_for_canvas(args, model, canvas)
-        if args.output_dir:
+        # if args.output_dir:
             # import pdb;pdb.set_trace()
         #     # Image.fromarray(np.uint8(original_image)).save(
             #     os.path.join(args.output_dir, f'original_{idx}.png'))
-            Image.fromarray(np.uint8(generated_result)).save(
-                os.path.join(args.output_dir, f'generated_{idx}.png'))
+            # Image.fromarray(np.uint8(generated_result)).save(
+            #     os.path.join(args.output_dir, f'generated_{idx}.png'))
         if args.purple:
             original_image = round_image(original_image, [YELLOW, PURPLE])
         else:
@@ -152,11 +152,11 @@ def evaluate(args):
         if args.task == 'detection':
             generated_result = to_rectangle(generated_result)
 
-        # if args.output_dir:
+        if args.output_dir:
         #     Image.fromarray(np.uint8(original_image)).save(
         #         os.path.join(args.output_dir, f'original_{idx}.png'))
-        #     Image.fromarray(np.uint8(generated_result)).save(
-        #         os.path.join(args.output_dir, f'generated_fixed_{idx}.png'))
+            Image.fromarray(np.uint8(generated_result)).save(
+                os.path.join(args.output_dir, f'generated_fixed_{idx}.png'))
         if args.purple:
             current_metric = calculate_metric(args, original_image, generated_result, fg_color=YELLOW, bg_color=PURPLE)
         else:

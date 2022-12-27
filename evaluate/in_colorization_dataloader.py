@@ -18,7 +18,7 @@ class DatasetColorization(Dataset):
         self.image_transform = image_transform
         self.reverse_support_and_query = reverse_support_and_query
         self.mask_transform = mask_transform
-        self.ds = ImageFolder(os.path.join(datapath, 'val'))
+        self.ds = ImageFolder(os.path.join(datapath,'fake_val_for_ImageFolder'))
         self.flipped_order = flipped_order
         np.random.seed(5)
         self.indices = np.random.choice(np.arange(0, len(self.ds)-1), size=1000, replace=False)
