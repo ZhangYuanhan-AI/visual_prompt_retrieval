@@ -42,7 +42,7 @@ t.append(T.Normalize(model.pretrained_cfg['mean'], model.pretrained_cfg['std']))
 center_crop = T.Compose(t)
 
 
-save_dir = "/mnt/lustre/yhzhang/data/imagenet/features_vit_val"
+save_dir = "/mnt/lustre/yhzhang/data/imagenet/features_vit_train-shot16-seed0"
 if not os.path.exists(save_dir):
     os.makedirs(save_dir)
 else:
@@ -50,9 +50,14 @@ else:
     sys.exit()
 
 
-image_root = "/mnt/lustre/yhzhang/data/imagenet/fake_val_for_ImageFolder/val"
+image_root = "/mnt/lustre/share/DSK/datasets/imagenet-21k/ImageNet-21K-image"
 
-examples = os.listdir(image_root)
+meta_path = '/mnt/lustre/yhzhang/data/imagenet/annotations/train_meta.list.num_shot_16.seed_0'
+
+with open(meta_path) as f:
+    metas = f.readlines()
+
+examples = [cur_line.strip().split(' ')[0] for cur_line in metas]
 
 imgs = []
 

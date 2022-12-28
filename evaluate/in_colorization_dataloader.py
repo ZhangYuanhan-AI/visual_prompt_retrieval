@@ -12,15 +12,16 @@ import json
 class DatasetColorization(Dataset):
     def __init__(self, datapath, image_transform, mask_transform, padding: bool = 1,
                  use_original_imgsize: bool = False, flipped_order: bool = False,
-                 reverse_support_and_query: bool = False, random: bool = False):
+                 reverse_support_and_query: bool = False, random: bool = False, split: str = 'train'):
         self.padding = padding
         self.random = random
         self.use_original_imgsize = use_original_imgsize
         self.image_transform = image_transform
         self.reverse_support_and_query = reverse_support_and_query
         self.mask_transform = mask_transform
-        self.datapath = datapath = os.path.join(datapath,'val')
-        self.ds = self.build_img_metadata(datapath)
+        self.datapath = datapath = os.path.join(datapath, split)
+        self.ds = self.build_img_metadata(os.path.join(datapath, 'annotations/train_meta.list.num_shot_16.seed_0'))
+        # self.ds = self.build_img_metadata(os.path.join(datapath, 'meta/{}.txt'.format(split)))
         self.flipped_order = flipped_order
         np.random.seed(5)
         self.indices = np.random.choice(np.arange(0, len(self.ds)-1), size=1000, replace=False)
@@ -54,10 +55,12 @@ class DatasetColorization(Dataset):
 
         return canvas
 
-    def build_img_metadata(self, datapath):
+    def build_img_metadata(self, meta_path):
 
-        def read_metadata(datapath):
-            fold_n_metadata = os.listdir(datapath)
+        def read_metadata(meta_path):
+            with open(meta_path)) as f:
+                metas = f.readlines()
+            fold_n_metadata = [cur_line.strip().split(' ')[0] for cur_line in metas]
             return fold_n_metadata
 
         img_metadata = []
@@ -76,16 +79,20 @@ class DatasetColorization(Dataset):
         idx = self.indices[idx]
         query = self.ds[idx]
 
-        grid_stack = []
-        for sim_idx in range(50)
+        grid_stack = torch.tensor([]).cuda()
+        for sim_idx in range(50):
             support = self.image_top50[query[:-5]][0]+'.JPEG'
             query_img, query_mask = self.mask_transform(self.read_img(query)), self.image_transform(self.read_img(query))
             support_img, support_mask = self.mask_transform(self.read_img(support)), self.image_transform(self.read_img(support))
             grid = self.create_grid_from_images(support_img, support_mask, query_img, query_mask)
-            grid_stack.append(grid)
+            if len(grid_stack) == 0:
+                grid_stack = grid
+            else:
+                grid_stack = torch.cat((grid_stack,grid))
             
+
         batch = {'query_img': query_img, 'query_mask': query_mask, 'support_img': support_img,
-                    'support_mask': support_mask, 'grid': grid}
+                    'support_mask': support_mask, 'grid_stack': grid_stack}
 
         return batch
 
