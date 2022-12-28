@@ -1,4 +1,3 @@
-ß
 #!/bin/sh
 
 mkdir -p logs

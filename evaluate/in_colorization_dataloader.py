@@ -45,7 +45,7 @@ class DatasetColorization(Dataset):
         return canvas
 
     def __getitem__(self, idx):
-        support_idx = np.random.choice(np.arange(0, len(self)-1))
+        # support_idx = np.random.choice(np.arange(0, len(self)-1))
         idx = self.indices[idx]
         query, support = self.ds[idx], self.ds[support_idx]
         query_img, query_mask = self.mask_transform(query[0]), self.image_transform(query[0])

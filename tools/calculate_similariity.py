@@ -20,8 +20,7 @@ for i in origin_features_files:
     features_files.append(i)
 
 
-for foldid in range(len(features_files)):
-    feature_file = 'folder'+str(foldid)+'.npz'
+for feature_file in features_files:
     print(f"Processing {feature_file} ...")
     sys.stdout.flush()
     path = os.path.join(features_dir, feature_file)
@@ -43,5 +42,5 @@ for foldid in range(len(features_files)):
         if img_name not in similarity_idx_dict:
             similarity_idx_dict[img_name] = list(examples[idx].strip().split('/')[-1][:-4] for idx in cur_similarity[::-1])
     
-    with open(features_dir+'/folder'+str(foldid)+'_top50-similarity'+'.json', "w") as outfile:
+    with open(features_dir+'/top50-similarity'+'.json', "w") as outfile:
         json.dump(similarity_idx_dict, outfile)
