@@ -75,13 +75,15 @@ class DatasetColorization(Dataset):
         # import pdb;pdb.set_trace()
         idx = self.indices[idx]
         query = self.ds[idx]
-        
+
+        grid_stack = []
         for sim_idx in range(50)
             support = self.image_top50[query[:-5]][0]+'.JPEG'
             query_img, query_mask = self.mask_transform(self.read_img(query)), self.image_transform(self.read_img(query))
             support_img, support_mask = self.mask_transform(self.read_img(support)), self.image_transform(self.read_img(support))
             grid = self.create_grid_from_images(support_img, support_mask, query_img, query_mask)
-    
+            grid_stack.append(grid)
+            
         batch = {'query_img': query_img, 'query_mask': query_mask, 'support_img': support_img,
                     'support_mask': support_mask, 'grid': grid}
 
