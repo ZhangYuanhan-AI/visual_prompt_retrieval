@@ -8,7 +8,7 @@ import json
 
 
 
-features_dir = "/mnt/lustre/share/yhzhang/pascal-5i/VOC2012/features_rn50_folder_val"
+features_dir = "/mnt/lustre/yhzhang/data/imagenet/features_vit_val"
 
 origin_features_files = os.listdir(features_dir)
 
@@ -36,11 +36,11 @@ for feature_file in features_files:
 
     similarity_idx_dict = {}
     for _, (cur_example, cur_similarity) in enumerate(zip(examples,similarity_idx)):
-        img_name = cur_example.strip().split('/')[-1][:-4]
+        img_name = cur_example.strip().split('/')[-1][:-5]
         # if img_name == '2008_007883':
         #     import pdb;pdb.set_trace()
         if img_name not in similarity_idx_dict:
-            similarity_idx_dict[img_name] = list(examples[idx].strip().split('/')[-1][:-4] for idx in cur_similarity[::-1])
+            similarity_idx_dict[img_name] = list(examples[idx].strip().split('/')[-1][:-5] for idx in cur_similarity[::-1])
     
     with open(features_dir+'/top50-similarity'+'.json', "w") as outfile:
         json.dump(similarity_idx_dict, outfile)

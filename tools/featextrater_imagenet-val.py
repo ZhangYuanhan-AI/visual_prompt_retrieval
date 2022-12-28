@@ -93,4 +93,6 @@ with torch.no_grad():
 
 features = global_features.cpu().numpy().astype(np.float32)
 
-np.savez(save_dir, examples=examples, features=features)
+save_file = os.path.join(save_dir, 'features')
+
+np.savez(save_file, examples=examples, features=features)
