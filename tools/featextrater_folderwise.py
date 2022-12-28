@@ -1,3 +1,4 @@
+
 """
 Extract features using PlacesCNN.
 """
@@ -20,9 +21,10 @@ import timm
 
 # vit_large_patch14_224_clip_laion2b
 # eva_large_patch14_196_in22k_ft_in22k_in1k
-dataset_name = 'vit_large_patch14_224_clip_laion2b'
+# resnet50
+model_name = 'resnet50'
 # import pdb;pdb.set_trace()
-model = timm.create_model(dataset_name, pretrained=True)
+model = timm.create_model(model_name, pretrained=True)
 model.eval()
 model = model.cuda()
 
@@ -39,10 +41,8 @@ t.append(T.ToTensor())
 t.append(T.Normalize(model.pretrained_cfg['mean'], model.pretrained_cfg['std']))
 center_crop = T.Compose(t)
 
-# Input dataset name
-# dataset_name = sys.argv[1]
 
-save_dir = "/mnt/lustre/share/yhzhang/pascal-5i/VOC2012/features_vit_folder"
+save_dir = "/mnt/lustre/share/yhzhang/pascal-5i/VOC2012/features_rn50_folder_val"
 if not os.path.exists(save_dir):
     os.makedirs(save_dir)
 else:
@@ -50,9 +50,9 @@ else:
     sys.exit()
 
 
-meta_root =  "/mnt/lustre/yhzhang/visual_prompting/evaluate/splits/pascal/trn"
+meta_root =  "/mnt/lustre/yhzhang/visual_prompting/evaluate/splits/pascal/val"
 image_root = "/mnt/lustre/share/yhzhang/pascal-5i/VOC2012/JPEGImages"
-for folder_id in tqdm(range(3)):
+for folder_id in tqdm(range(4)):
     print(f"Processing folder {folder_id}")
     sys.stdout.flush()
     with open(os.path.join(meta_root, 'fold'+str(folder_id)+'.txt')) as f:
@@ -63,6 +63,8 @@ for folder_id in tqdm(range(3)):
         continue
 
     examples = [os.path.join(image_root, example.strip()[:-4]+'.jpg') for example in examples]
+    
+    # import pdb;pdb.set_trace()
     
     imgs = []
 
