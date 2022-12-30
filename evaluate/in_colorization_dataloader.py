@@ -20,9 +20,10 @@ class DatasetColorization(Dataset):
         self.reverse_support_and_query = reverse_support_and_query
         self.mask_transform = mask_transform
         self.datapath = datapath = os.path.join(datapath, split)
-        self.ds = self.build_img_metadata(os.path.join(datapath, 'annotations/train_meta.list.num_shot_16.seed_0'))
+        self.ds = self.build_img_metadata('/mnt/lustre/yhzhang/data/imagenet/annotations/train_meta.list.num_shot_16.seed_0')
         # self.ds = self.build_img_metadata(os.path.join(datapath, 'meta/{}.txt'.format(split)))
         self.flipped_order = flipped_order
+        self.split = split
         np.random.seed(5)
         self.indices = np.random.choice(np.arange(0, len(self.ds)-1), size=1000, replace=False)
 
@@ -30,10 +31,10 @@ class DatasetColorization(Dataset):
 
 
     def __len__(self):
-        return 1000
+        return len(self.ds)
 
     def get_top50_images(self):
-        with open('/mnt/lustre/yhzhang/data/imagenet/features_vit_val/top50-similarity.json') as f:
+        with open('/mnt/lustre/yhzhang/data/imagenet/features_vit_train-shot16-seed0/top50-similarity.json') as f:
             images_top50 = json.load(f)
 
         return images_top50
@@ -58,15 +59,15 @@ class DatasetColorization(Dataset):
     def build_img_metadata(self, meta_path):
 
         def read_metadata(meta_path):
-            with open(meta_path)) as f:
+            with open(meta_path) as f:
                 metas = f.readlines()
             fold_n_metadata = [cur_line.strip().split(' ')[0] for cur_line in metas]
             return fold_n_metadata
 
         img_metadata = []
-        img_metadata = read_metadata(datapath)
+        img_metadata = read_metadata(meta_path)
 
-        print('Total %s images are : %d' % (datapath,len(img_metadata)))
+        print('Total %s images are : %d' % (meta_path,len(img_metadata)))
 
         return img_metadata
 
@@ -75,15 +76,19 @@ class DatasetColorization(Dataset):
         return Image.open(os.path.join(self.datapath, img_name))
 
     def __getitem__(self, idx):
-        # import pdb;pdb.set_trace()
-        idx = self.indices[idx]
+        
+        if self.split != 'train':
+            idx = self.indices[idx]
+
         query = self.ds[idx]
 
         grid_stack = torch.tensor([]).cuda()
         for sim_idx in range(50):
-            support = self.image_top50[query[:-5]][0]+'.JPEG'
+            support = self.image_top50[query[:-5].split('/')[1]][sim_idx]
+            support = support.split('_')[0]+'/'+support+'.JPEG'
             query_img, query_mask = self.mask_transform(self.read_img(query)), self.image_transform(self.read_img(query))
             support_img, support_mask = self.mask_transform(self.read_img(support)), self.image_transform(self.read_img(support))
+            import pdb;pdb.set_trace()
             grid = self.create_grid_from_images(support_img, support_mask, query_img, query_mask)
             if len(grid_stack) == 0:
                 grid_stack = grid
@@ -115,5 +120,11 @@ if __name__ == "__main__":
 
     idx = np.random.choice(np.arange(len(canvas_ds)))
 
-    canvas = canvas_ds[idx]
+    canvas = canvas_ds[idx]['grid_stack'][0]
+
+    Image.fromarray(np.array(canvas)).convert('RGB').save(os.path.join('test.png'))
+
+    # import pdb;pdb.set_trace()
+
+
 
