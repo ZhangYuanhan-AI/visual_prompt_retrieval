@@ -12,7 +12,7 @@ import json
 class DatasetColorization(Dataset):
     def __init__(self, datapath, image_transform, mask_transform, padding: bool = 1,
                  use_original_imgsize: bool = False, flipped_order: bool = False,
-                 reverse_support_and_query: bool = False, random: bool = False, split: str = 'train'):
+                 reverse_support_and_query: bool = False, random: bool = False, split: str = 'train', meta_split: str = '0'):
         self.padding = padding
         self.random = random
         self.use_original_imgsize = use_original_imgsize
@@ -20,7 +20,7 @@ class DatasetColorization(Dataset):
         self.reverse_support_and_query = reverse_support_and_query
         self.mask_transform = mask_transform
         self.datapath = datapath = os.path.join(datapath, split)
-        self.ds = self.build_img_metadata('/mnt/lustre/yhzhang/data/imagenet/annotations/train_meta.list.num_shot_16.seed_0')
+        self.ds = self.build_img_metadata('/mnt/lustre/yhzhang/data/imagenet/annotations/train_meta.list.num_shot_16.seed_0.'+meta_split)
         # self.ds = self.build_img_metadata(os.path.join(datapath, 'meta/{}.txt'.format(split)))
         self.flipped_order = flipped_order
         self.split = split
@@ -75,29 +75,33 @@ class DatasetColorization(Dataset):
         r"""Return RGB image in PIL Image"""
         return Image.open(os.path.join(self.datapath, img_name))
 
-    def __getitem__(self, idx):
+    def __getitem__(self, all_idx):
+
+        idx,sim_idx = all_idx
         
         if self.split != 'train':
             idx = self.indices[idx]
 
         query = self.ds[idx]
 
-        grid_stack = torch.tensor([]).cuda()
-        for sim_idx in range(50):
-            support = self.image_top50[query[:-5].split('/')[1]][sim_idx]
-            support = support.split('_')[0]+'/'+support+'.JPEG'
-            query_img, query_mask = self.mask_transform(self.read_img(query)), self.image_transform(self.read_img(query))
-            support_img, support_mask = self.mask_transform(self.read_img(support)), self.image_transform(self.read_img(support))
-            import pdb;pdb.set_trace()
-            grid = self.create_grid_from_images(support_img, support_mask, query_img, query_mask)
-            if len(grid_stack) == 0:
-                grid_stack = grid
-            else:
-                grid_stack = torch.cat((grid_stack,grid))
+        # grid_stack = torch.tensor([]).cuda()
+        # for sim_idx in range(50):
+        support = self.image_top50[query[:-5].split('/')[1]][sim_idx]
+        support = support.split('_')[0]+'/'+support+'.JPEG'
+        query_img, query_mask = self.mask_transform(self.read_img(query)), self.image_transform(self.read_img(query))
+        support_img, support_mask = self.mask_transform(self.read_img(support)), self.image_transform(self.read_img(support))
+        grid = self.create_grid_from_images(support_img, support_mask, query_img, query_mask)
+
+            # grid = grid.unsqueeze(0)
+
+            # if len(grid_stack) == 0:
+            #     grid_stack = grid
+            # else:
+            #     grid_stack = torch.cat((grid_stack,grid))
             
 
         batch = {'query_img': query_img, 'query_mask': query_mask, 'support_img': support_img,
-                    'support_mask': support_mask, 'grid_stack': grid_stack}
+                    'support_mask': support_mask, 'grid': grid}
 
         return batch
 
@@ -122,7 +126,11 @@ if __name__ == "__main__":
 
     canvas = canvas_ds[idx]['grid_stack'][0]
 
-    Image.fromarray(np.array(canvas)).convert('RGB').save(os.path.join('test.png'))
+    # import pdb;pdb.set_trace()
+    import torchvision.transforms as T
+    transform = T.ToPILImage()
+    img = transform(canvas)
+    img.save(os.path.join('test.png'))
 
     # import pdb;pdb.set_trace()
 

@@ -11,6 +11,7 @@ from evaluate.reasoning_dataloader import *
 from evaluate.mae_utils import *
 import argparse
 from pathlib import Path
+import time
 
 
 def get_args():
@@ -24,6 +25,7 @@ def get_args():
     parser.add_argument('--seed', default=0, type=int)
     parser.add_argument('--tta_option', default=0, type=int)
     parser.add_argument('--ckpt', help='resume from checkpoint')
+    parser.add_argument('--meta_split', help='meta_split')
 
     parser.set_defaults(autoregressive=False)
     return parser
@@ -67,15 +69,22 @@ def evaluate(args):
          torchvision.transforms.Grayscale(3),
          torchvision.transforms.ToTensor()])
 
-    ds = DatasetColorization(args.data_path, image_transform, mask_transform)
+    ds = DatasetColorization(args.data_path, image_transform, mask_transform, meta_split=args.meta_split)
 
     eval_dict = {'mse': 0.}
 
     for idx in trange(len(ds)):
-        canvas_stack = ds[idx]['grid_stack']
-        for sim_idx, canvas in enumerate(canvas_stack):
+        # canvas_stack = ds[idx]['grid_stack']
+        for sim_idx in range(50):  # for sim_idx, canvas in enumerate(canvas_stack):
+            # start_data = time.time()
+            canvas = ds[idx, sim_idx]['grid']
+            # end_data = time.time()
+            # print('data time: {}'.format(end_data-start_data))
             canvas = (canvas - imagenet_mean[:, None, None]) / imagenet_std[:, None, None]
+            # start_model = time.time()
             original_image, generated_result = _generate_result_for_canvas(args, model, canvas)
+            # end_model = time.time()
+            # print('model time: {}'.format(end_model-start_model))
 
             if args.output_dir:
                 # Image.fromarray(np.uint8(original_image)).save(
