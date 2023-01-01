@@ -1,5 +1,5 @@
-import evaluate_detection.transforms as T
-# import torchvision.transforms as T
+# import evaluate_detection.transforms as T
+import torchvision.transforms as T
 
 # partly taken from https://github.com/pytorch/vision/blob/master/torchvision/datasets/voc.py
 import functools

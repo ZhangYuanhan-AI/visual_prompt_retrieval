@@ -66,20 +66,15 @@ class CanvasDataset(data.Dataset):
     def __len__(self):
         return len(self.val_ds)
 
-    def __getitem__(self, idx):
+    def __getitem__(self, idx, sim_idx):
 
         query_image, query_target = self.val_ds[idx]
         # should we run on all classes?
         label = np.random.choice(query_target['labels']).item()
 
-        # how many supports should we use?
-        indices = np.arange(len(self.train_ds))
-        np.random.shuffle(indices)
+        _, support_image_idx= self.images_top50[query_image][sim_idx]
+        support_image, support_target = self.train_ds[support_image_idx]
 
-        for idx in indices:
-            support_image, support_target = self.train_ds[idx]
-            if torch.any(support_target['labels'] == label).item() or self.random:
-                break
 
         boxes = support_target['boxes'][torch.where(support_target['labels'] == label)[0]]
         support_image_copy = get_annotated_image(np.array(support_image), boxes, border_width=-1, mode='keep', bgcolor='black', fg='white')
