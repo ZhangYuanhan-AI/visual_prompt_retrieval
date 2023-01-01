@@ -9,7 +9,7 @@ from tqdm import tqdm
 
 
 
-features_dir = "/mnt/lustre/yhzhang/data/imagenet/features_vit_train-shot16-seed0"
+features_dir = "/mnt/lustre/yhzhang/data/imagenet/features_supcon_bs256_val"
 
 origin_features_files = os.listdir(features_dir)
 

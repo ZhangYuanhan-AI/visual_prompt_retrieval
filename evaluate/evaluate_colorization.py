@@ -25,7 +25,7 @@ def get_args():
     parser.add_argument('--seed', default=0, type=int)
     parser.add_argument('--tta_option', default=0, type=int)
     parser.add_argument('--ckpt', help='resume from checkpoint')
-    parser.add_argument('--meta_split', help='meta_split')
+    parser.add_argument('--meta_split', default='0', help='meta_split')
 
     parser.set_defaults(autoregressive=False)
     return parser
@@ -69,13 +69,14 @@ def evaluate(args):
          torchvision.transforms.Grayscale(3),
          torchvision.transforms.ToTensor()])
 
-    ds = DatasetColorization(args.data_path, image_transform, mask_transform, meta_split=args.meta_split)
+    # ds = DatasetColorization(args.data_path, image_transform, mask_transform, meta_split=args.meta_split)
+    ds = DatasetColorization(args.data_path, image_transform, mask_transform)
 
     eval_dict = {'mse': 0.}
 
     for idx in trange(len(ds)):
         # canvas_stack = ds[idx]['grid_stack']
-        for sim_idx in range(50):  # for sim_idx, canvas in enumerate(canvas_stack):
+        for sim_idx in range(1):  # for sim_idx, canvas in enumerate(canvas_stack):
             # start_data = time.time()
             canvas = ds[idx, sim_idx]['grid']
             # end_data = time.time()

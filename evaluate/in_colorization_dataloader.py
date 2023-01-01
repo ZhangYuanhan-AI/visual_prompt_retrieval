@@ -12,7 +12,7 @@ import json
 class DatasetColorization(Dataset):
     def __init__(self, datapath, image_transform, mask_transform, padding: bool = 1,
                  use_original_imgsize: bool = False, flipped_order: bool = False,
-                 reverse_support_and_query: bool = False, random: bool = False, split: str = 'train', meta_split: str = '0'):
+                 reverse_support_and_query: bool = False, random: bool = False, split: str = 'val', meta_split: str = '0'):
         self.padding = padding
         self.random = random
         self.use_original_imgsize = use_original_imgsize
@@ -20,7 +20,7 @@ class DatasetColorization(Dataset):
         self.reverse_support_and_query = reverse_support_and_query
         self.mask_transform = mask_transform
         self.datapath = datapath = os.path.join(datapath, split)
-        self.ds = self.build_img_metadata('/mnt/lustre/yhzhang/data/imagenet/annotations/train_meta.list.num_shot_16.seed_0.'+meta_split)
+        self.ds = self.build_img_metadata('/mnt/lustre/yhzhang/data/imagenet/meta/val.txt')
         # self.ds = self.build_img_metadata(os.path.join(datapath, 'meta/{}.txt'.format(split)))
         self.flipped_order = flipped_order
         self.split = split
@@ -31,10 +31,11 @@ class DatasetColorization(Dataset):
 
 
     def __len__(self):
-        return len(self.ds)
+        return 1000
+        # return len(self.ds)
 
     def get_top50_images(self):
-        with open('/mnt/lustre/yhzhang/data/imagenet/features_vit_train-shot16-seed0/top50-similarity.json') as f:
+        with open('/mnt/lustre/yhzhang/data/imagenet/features_vit_val/top50-similarity.json') as f:
             images_top50 = json.load(f)
 
         return images_top50
@@ -84,10 +85,12 @@ class DatasetColorization(Dataset):
 
         query = self.ds[idx]
 
+        # import pdb;pdb.set_trace()
+
         # grid_stack = torch.tensor([]).cuda()
         # for sim_idx in range(50):
-        support = self.image_top50[query[:-5].split('/')[1]][sim_idx]
-        support = support.split('_')[0]+'/'+support+'.JPEG'
+        support = self.image_top50[query[:-5]][sim_idx]
+        support = support+'.JPEG'
         query_img, query_mask = self.mask_transform(self.read_img(query)), self.image_transform(self.read_img(query))
         support_img, support_mask = self.mask_transform(self.read_img(support)), self.image_transform(self.read_img(support))
         grid = self.create_grid_from_images(support_img, support_mask, query_img, query_mask)
@@ -124,7 +127,7 @@ if __name__ == "__main__":
 
     idx = np.random.choice(np.arange(len(canvas_ds)))
 
-    canvas = canvas_ds[idx]['grid_stack'][0]
+    canvas = canvas_ds[0,0]
 
     # import pdb;pdb.set_trace()
     import torchvision.transforms as T
