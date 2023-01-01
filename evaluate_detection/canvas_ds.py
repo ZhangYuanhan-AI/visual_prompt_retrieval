@@ -1,7 +1,7 @@
 import torch.utils.data as data
-# import sys; 
-# sys.path.append('/mnt/lustre/yhzhang/visual_prompting')
-# sys.path.append('/mnt/lustre/yhzhang/visual_prompting/evaluate')
+import sys; 
+sys.path.append('/mnt/lustre/yhzhang/visual_prompting')
+sys.path.append('/mnt/lustre/yhzhang/visual_prompting/evaluate')
 from evaluate_detection.voc_orig import VOCDetection as VOCDetectionOrig, make_transforms
 import cv2
 from evaluate.pascal_dataloader import create_grid_from_images_old as create_grid_from_images
@@ -68,7 +68,7 @@ class CanvasDataset(data.Dataset):
         self.images_top50 = self.get_top50_images()
 
     def get_top50_images(self):
-        with open('/mnt/lustre/share/yhzhang/pascal-5i/VOC2012/features_vit_det/val-top50-similarity.json') as f:
+        with open('/mnt/lustre/share/yhzhang/pascal-5i/VOC2012/features_vit_det/train-top50-similarity.json') as f:
             images_top50 = json.load(f)
 
         return images_top50
@@ -80,6 +80,7 @@ class CanvasDataset(data.Dataset):
 
     def __getitem__(self, idx):
         
+        import pdb;pdb.set_trace()
         idx, sim_idx = idx
         query_image, query_target = self.train_ds[idx]
         # query_image, query_target = self.val_ds[idx]
@@ -89,6 +90,9 @@ class CanvasDataset(data.Dataset):
 
         _, support_image_idx= self.images_top50[query_image_name][sim_idx].split(' ')
         support_image, support_target = self.train_ds[int(support_image_idx)]
+
+        if support_image == query_image:
+            return self.__getitem__(idx, sim_idx+1)
 
 
         boxes = support_target['boxes'][torch.where(support_target['labels'] == label)[0]]
@@ -115,7 +119,6 @@ class CanvasDataset(data.Dataset):
 if __name__ == "__main__":
     # model = prepare_model('/shared/amir/Deployment/arxiv_mae/logs_dir/pretrain_small_arxiv2/checkpoint-799.pth',
     #                       arch='mae_vit_small_patch16')
-
 
     canvas_ds = CanvasDataset()
 
