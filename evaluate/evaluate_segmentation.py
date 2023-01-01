@@ -120,51 +120,53 @@ def evaluate(args):
     # Build the transforms:
     eval_dict = {'iou': 0, 'color_blind_iou': 0, 'accuracy': 0}
     for idx in trange(len(ds)):
-        canvas = ds[idx]['grid']
-        if args.dataset_type != 'pascal_det':
-            canvas = (canvas - imagenet_mean[:, None, None]) / imagenet_std[:, None, None]
-        # Calculate the original_image and the result
-        original_image, generated_result = _generate_result_for_canvas(args, model, canvas)
-        if args.output_dir:
-            # import pdb;pdb.set_trace()
-        #     # Image.fromarray(np.uint8(original_image)).save(
-            #     os.path.join(args.output_dir, f'original_{idx}.png'))
-            Image.fromarray(np.uint8(generated_result)).save(
-                os.path.join(args.output_dir, f'generated_{idx}.png'))
-        if args.purple:
-            original_image = round_image(original_image, [YELLOW, PURPLE])
-        else:
-            original_image = round_image(original_image, [WHITE, BLACK])
+        for sim_idx in range(50):
+            canvas = ds[(idx,sim_idx)]['grid']
+            if args.dataset_type != 'pascal_det':
+                canvas = (canvas - imagenet_mean[:, None, None]) / imagenet_std[:, None, None]
+            # Calculate the original_image and the result
+            original_image, generated_result = _generate_result_for_canvas(args, model, canvas)
+            if args.output_dir:
+                # import pdb;pdb.set_trace()
+            #     # Image.fromarray(np.uint8(original_image)).save(
+                #     os.path.join(args.output_dir, f'original_{idx}.png'))
+                if sim_idx in [0,49]:
+                    Image.fromarray(np.uint8(generated_result)).save(
+                        os.path.join(args.output_dir, f'generated_{idx}_{sim_idx}.png'))
+            if args.purple:
+                original_image = round_image(original_image, [YELLOW, PURPLE])
+            else:
+                original_image = round_image(original_image, [WHITE, BLACK])
 
-        # if args.output_dir:
-        #     Image.fromarray(np.uint8(generated_result)).save(
-        #         os.path.join(args.output_dir, f'generated_before_rounding_{idx}.png'))
+            # if args.output_dir:
+            #     Image.fromarray(np.uint8(generated_result)).save(
+            #         os.path.join(args.output_dir, f'generated_before_rounding_{idx}.png'))
 
-        if args.purple:
-            generated_result = round_image(generated_result, [YELLOW, PURPLE], t=args.t)
-        else:
-            generated_result = round_image(generated_result, [WHITE, BLACK], t=args.t)
+            if args.purple:
+                generated_result = round_image(generated_result, [YELLOW, PURPLE], t=args.t)
+            else:
+                generated_result = round_image(generated_result, [WHITE, BLACK], t=args.t)
 
-        # if args.output_dir:
-        #     Image.fromarray(np.uint8(generated_result)).save(
-        #         os.path.join(args.output_dir, f'generated_rounded_{idx}.png'))
+            # if args.output_dir:
+            #     Image.fromarray(np.uint8(generated_result)).save(
+            #         os.path.join(args.output_dir, f'generated_rounded_{idx}.png'))
 
-        if args.task == 'detection':
-            generated_result = to_rectangle(generated_result)
+            if args.task == 'detection':
+                generated_result = to_rectangle(generated_result)
 
-        # if args.output_dir:
-        #     Image.fromarray(np.uint8(original_image)).save(
-        #         os.path.join(args.output_dir, f'original_{idx}.png'))
-            # Image.fromarray(np.uint8(generated_result)).save(
-            #     os.path.join(args.output_dir, f'generated_fixed_{idx}.png'))
-        if args.purple:
-            current_metric = calculate_metric(args, original_image, generated_result, fg_color=YELLOW, bg_color=PURPLE)
-        else:
-            current_metric = calculate_metric(args, original_image, generated_result, fg_color=WHITE, bg_color=BLACK)
-        with open(os.path.join(args.output_dir, 'log.txt'), 'a') as log:
-            log.write(str(idx) + '\t' + str(current_metric) + '\n')
-        for i, j in current_metric.items():
-            eval_dict[i] += (j / len(ds))
+            # if args.output_dir:
+            #     Image.fromarray(np.uint8(original_image)).save(
+            #         os.path.join(args.output_dir, f'original_{idx}.png'))
+                # Image.fromarray(np.uint8(generated_result)).save(
+                #     os.path.join(args.output_dir, f'generated_fixed_{idx}.png'))
+            if args.purple:
+                current_metric = calculate_metric(args, original_image, generated_result, fg_color=YELLOW, bg_color=PURPLE)
+            else:
+                current_metric = calculate_metric(args, original_image, generated_result, fg_color=WHITE, bg_color=BLACK)
+            with open(os.path.join(args.output_dir, 'log.txt'), 'a') as log:
+                log.write(str(idx) + '\t' + str(sim_idx) + '\t' + str(current_metric) + '\n')
+            for i, j in current_metric.items():
+                eval_dict[i] += (j / len(ds))
 
     with open(os.path.join(args.output_dir, 'log.txt'), 'a') as log:
         log.write('all\t' + str(eval_dict) + '\n')

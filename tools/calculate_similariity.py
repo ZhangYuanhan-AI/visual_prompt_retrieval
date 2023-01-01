@@ -20,7 +20,7 @@ for i in origin_features_files:
     features_files.append(i)
 
 
-feature_val_file = 'features_val.npz'
+feature_val_file = 'features_train.npz'
 feature_train_file = 'features_train.npz'
 
 print(f"Processing {feature_val_file} ...")
@@ -52,5 +52,5 @@ for _, (cur_example, cur_similarity) in enumerate(zip(val_examples,similarity_id
 print(f"len of similarity is {len(similarity_idx_dict)} ...")
 sys.stdout.flush()
 
-with open(features_dir+'/top50-similarity'+'.json', "w") as outfile:
+with open(features_dir+'/train-top50-similarity'+'.json', "w") as outfile:
     json.dump(similarity_idx_dict, outfile)

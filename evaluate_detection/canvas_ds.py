@@ -1,4 +1,7 @@
 import torch.utils.data as data
+# import sys; 
+# sys.path.append('/mnt/lustre/yhzhang/visual_prompting')
+# sys.path.append('/mnt/lustre/yhzhang/visual_prompting/evaluate')
 from evaluate_detection.voc_orig import VOCDetection as VOCDetectionOrig, make_transforms
 import cv2
 from evaluate.pascal_dataloader import create_grid_from_images_old as create_grid_from_images
@@ -9,6 +12,7 @@ from matplotlib import pyplot as plt
 import torch
 import numpy as np
 import torchvision.transforms as T
+import json
 
 
 def box_to_img(mask, target, border_width=4):
@@ -49,7 +53,7 @@ def get_annotated_image(img, boxes, border_width=3, mode='draw', bgcolor='white'
 
 class CanvasDataset(data.Dataset):
 
-    def __init__(self, pascal_path='/shared/yossi_gandelsman/code/occlusionwalk/pascal', years=("2012",), random=False, **kwargs):
+    def __init__(self, pascal_path='/mnt/lustre/share/yhzhang/pascal-5i', years=("2012",), random=False, **kwargs):
         self.train_ds = VOCDetectionOrig(pascal_path, years, image_sets=['train'], transforms=None)
         self.val_ds = VOCDetectionOrig(pascal_path, years, image_sets=['val'], transforms=None)
         self.background_transforms = T.Compose([
@@ -61,19 +65,30 @@ class CanvasDataset(data.Dataset):
         ])
         self.transforms = make_transforms('val')
         self.random = random
+        self.images_top50 = self.get_top50_images()
+
+    def get_top50_images(self):
+        with open('/mnt/lustre/share/yhzhang/pascal-5i/VOC2012/features_vit_det/val-top50-similarity.json') as f:
+            images_top50 = json.load(f)
+
+        return images_top50
 
 
     def __len__(self):
-        return len(self.val_ds)
+        return len(self.train_ds)
+        # return len(self.val_ds)
 
-    def __getitem__(self, idx, sim_idx):
-
-        query_image, query_target = self.val_ds[idx]
+    def __getitem__(self, idx):
+        
+        idx, sim_idx = idx
+        query_image, query_target = self.train_ds[idx]
+        # query_image, query_target = self.val_ds[idx]
+        query_image_name = self.train_ds.images[idx].split('/')[-1][:-4]
         # should we run on all classes?
         label = np.random.choice(query_target['labels']).item()
 
-        _, support_image_idx= self.images_top50[query_image][sim_idx]
-        support_image, support_target = self.train_ds[support_image_idx]
+        _, support_image_idx= self.images_top50[query_image_name][sim_idx].split(' ')
+        support_image, support_target = self.train_ds[int(support_image_idx)]
 
 
         boxes = support_target['boxes'][torch.where(support_target['labels'] == label)[0]]
@@ -102,13 +117,6 @@ if __name__ == "__main__":
     #                       arch='mae_vit_small_patch16')
 
 
-    canvas_ds = CanvasDataset(dataset_train, dataset_val)
+    canvas_ds = CanvasDataset()
 
-    ids_shuffle, len_keep = generate_mask_for_evaluation()
-
-    idx = np.random.choice(np.arange(len(dataset_val)))
-    canvas = canvas_ds[idx]
-    orig_image, im_paste, mask = generate_image(canvas.unsqueeze(0), model, ids_shuffle, len_keep)
-    plt.figure(dpi=256)
-    plt.imshow(torch.clip((im_paste[0].cpu().detach() * imagenet_std + imagenet_mean) * 255, 0, 255).int())
-    plt.show()
+    canvas = canvas_ds[(0,20)]
