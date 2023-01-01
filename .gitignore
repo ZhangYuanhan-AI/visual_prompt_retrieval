@@ -16,4 +16,5 @@ evaluate/output*/
 weights/
 logs/
 output*/
+*pth
 
