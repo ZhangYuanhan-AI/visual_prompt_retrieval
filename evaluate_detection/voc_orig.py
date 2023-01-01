@@ -1,4 +1,6 @@
 import evaluate_detection.transforms as T
+# import torchvision.transforms as T
+
 # partly taken from https://github.com/pytorch/vision/blob/master/torchvision/datasets/voc.py
 import functools
 import torch
@@ -25,7 +27,8 @@ DATASET_YEAR_DICT = {
         'url': 'http://host.robots.ox.ac.uk/pascal/VOC/voc2012/VOCtrainval_11-May-2012.tar',
         'filename': 'VOCtrainval_11-May-2012.tar',
         'md5': '6cd6e144f989b92b3379bac3b3de84fd',
-        'base_dir': os.path.join('VOCdevkit', 'VOC2012')
+        'base_dir': os.path.join('VOC2012')
+        # 'base_dir': os.path.join('VOCdevkit', 'VOC2012')
     },
     '2011': {
         'url': 'http://host.robots.ox.ac.uk/pascal/VOC/voc2011/VOCtrainval_25-May-2011.tar',
@@ -129,8 +132,8 @@ class VOCDetection(VisionDataset):
         self.MAX_NUM_OBJECTS = 64
         self.no_cats = no_cats
         # self.support_set = torch.load('/shared/amir/dataset/pascal/2012_support_set.pth') # TODO: save in original datapath (PD right now)
-        self.val_flattened_set = torch.load('/shared/amir/dataset/pascal/2012_val_flattened_set.pth')
-
+        self.val_flattened_set = torch.load('/mnt/lustre/yhzhang/visual_prompting/2012_val_flattened_set.pth')
+        self.root = root
 
         for year, image_set in zip(years, image_sets):
 
@@ -144,7 +147,7 @@ class VOCDetection(VisionDataset):
             voc_root = os.path.join(self.root, base_dir)
             image_dir = os.path.join(voc_root, 'JPEGImages')
             annotation_dir = os.path.join(voc_root, 'Annotations')
-
+            # import pdb;pdb.set_trace()
             if not os.path.isdir(voc_root):
                 raise RuntimeError('Dataset not found or corrupted.' +
                                    ' You can use download=True to download it')
@@ -245,7 +248,9 @@ class VOCDetection(VisionDataset):
         Returns:
             tuple: (image, target) where target is a dictionary of the XML tree.
         """
-        index, label = self.val_flattened_set[idx]
+        # index, label = self.val_flattened_set[idx]
+        index = idx
+        # import pdb;pdb.set_trace()
         img = Image.open(self.images[index]).convert('RGB')
         target, instances = self.load_instances(self.imgids[index])
         # keep instance with a same label
@@ -296,3 +301,6 @@ def download_extract(url, root, filename, md5):
         tar.extractall(path=root)
 
 
+if __name__ == '__main__':
+    val_ds = VOCDetection('/mnt/lustre/yhzhang/data/pascal-5i/', ['2012'], image_sets=['val'], transforms=None)
+    a = val_ds[1]
