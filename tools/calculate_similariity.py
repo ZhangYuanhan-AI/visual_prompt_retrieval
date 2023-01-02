@@ -39,6 +39,10 @@ train_features = file_train_npz["features"].astype(np.float32)
 # import pdb;pdb.set_trace() #2007_000648
 similarity = dot(val_features,train_features.T)/(linalg.norm(val_features,axis=1, keepdims=True) * linalg.norm(train_features,axis=1, keepdims=True).T)
 
+# if two features are the same
+for i in range(len(similarity)):
+    similarity[i][i] = 0
+
 similarity_idx = np.argsort(similarity,axis=1)[:,-50:]
 
 similarity_idx_dict = {}
