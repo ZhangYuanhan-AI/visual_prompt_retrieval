@@ -35,7 +35,7 @@ class DatasetColorization(Dataset):
         # return len(self.ds)
 
     def get_top50_images(self):
-        with open('/mnt/lustre/yhzhang/data/imagenet/features_vit_val/top50-similarity.json') as f:
+        with open('/mnt/lustre/yhzhang/data/imagenet/features_supcon_bs64_val/top50-similarity.json') as f:
             images_top50 = json.load(f)
 
         return images_top50
