@@ -75,29 +75,46 @@ class CanvasDataset(data.Dataset):
 
 
     def __len__(self):
-        return len(self.train_ds)
-        # return len(self.val_ds)
+        # return len(self.train_ds)
+        return len(self.val_ds)
 
     def __getitem__(self, idx):
         
         # import pdb;pdb.set_trace()
         idx, sim_idx = idx
         query_image, query_target = self.train_ds[idx]
-        # query_image, query_target = self.val_ds[idx]
         query_image_name = self.train_ds.images[idx].split('/')[-1][:-4]
+        # query_image, query_target = self.val_ds[idx]
+        # query_image_name = self.val_ds.images[idx].split('/')[-1][:-4]
         # should we run on all classes?
         label = np.random.choice(query_target['labels']).item()
 
         _, support_image_idx= self.images_top50[query_image_name][sim_idx].split(' ')
         support_image, support_target = self.train_ds[int(support_image_idx)]
 
-        if support_image == query_image:
-            return self.__getitem__(idx, sim_idx+1)
+        ### commend this if uncommend follow
+        support_label = np.random.choice(support_target['labels']).item()
+        boxes = support_target['boxes'][torch.where(support_target['labels'] == support_label)[0]]
 
-
-        boxes = support_target['boxes'][torch.where(support_target['labels'] == label)[0]]
+        # boxes = support_target['boxes'][torch.where(support_target['labels'] == label)[0]]
         support_image_copy = get_annotated_image(np.array(support_image), boxes, border_width=-1, mode='keep', bgcolor='black', fg='white')
         support_image_copy_pil = Image.fromarray(support_image_copy)
+
+        if support_image == query_image:
+            return self.__getitem__((idx, sim_idx+1))
+
+        # if torch.any(support_target['labels'] != label).item():
+        #     if sim_idx < 49:
+        #         return self.__getitem__((idx, sim_idx+1))
+        #     else:
+        #         _, support_image_idx= self.images_top50[query_image_name][0].split(' ')
+        #         support_image, support_target = self.train_ds[int(support_image_idx)]
+        #         support_label = np.random.choice(support_target['labels']).item()
+        #         boxes = support_target['boxes'][torch.where(support_target['labels'] == support_label)[0]]
+        #         support_image_copy = get_annotated_image(np.array(support_image), boxes, border_width=-1, mode='keep', bgcolor='black', fg='white')
+        #         support_image_copy_pil = Image.fromarray(support_image_copy)
+
+
 
         boxes = query_target['boxes'][torch.where(query_target['labels'] == label)[0]]
         query_image_copy = get_annotated_image(np.array(query_image), boxes, border_width=-1, mode='keep', bgcolor='black', fg='white')
@@ -122,4 +139,4 @@ if __name__ == "__main__":
 
     canvas_ds = CanvasDataset()
 
-    canvas = canvas_ds[(0,20)]
+    canvas = canvas_ds[(540,0)]
