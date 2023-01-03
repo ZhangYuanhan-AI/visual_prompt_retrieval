@@ -120,7 +120,7 @@ def evaluate(args):
     # Build the transforms:
     eval_dict = {'iou': 0, 'color_blind_iou': 0, 'accuracy': 0}
     for idx in trange(len(ds)):
-        for sim_idx in range(50):
+        for sim_idx in range(1):
             canvas = ds[(idx,sim_idx)]['grid']
             if args.dataset_type != 'pascal_det':
                 canvas = (canvas - imagenet_mean[:, None, None]) / imagenet_std[:, None, None]

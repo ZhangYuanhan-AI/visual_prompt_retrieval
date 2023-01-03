@@ -68,24 +68,24 @@ class CanvasDataset(data.Dataset):
         self.images_top50 = self.get_top50_images()
 
     def get_top50_images(self):
-        with open('/mnt/lustre/share/yhzhang/pascal-5i/VOC2012/features_vit_det/train-top50-similarity.json') as f:
+        with open('/mnt/lustre/share/yhzhang/pascal-5i/VOC2012/features_supcon-in1k-bsz64_pretrain_det/val-top50-similarity.json') as f:
             images_top50 = json.load(f)
 
         return images_top50
 
 
     def __len__(self):
-        return len(self.train_ds)
-        # return len(self.val_ds)
+        # return len(self.train_ds)
+        return len(self.val_ds)
 
     def __getitem__(self, idx):
         
         # import pdb;pdb.set_trace()
         idx, sim_idx = idx
-        query_image, query_target = self.train_ds[idx]
-        query_image_name = self.train_ds.images[idx].split('/')[-1][:-4]
-        # query_image, query_target = self.val_ds[idx]
-        # query_image_name = self.val_ds.images[idx].split('/')[-1][:-4]
+        # query_image, query_target = self.train_ds[idx]
+        # query_image_name = self.train_ds.images[idx].split('/')[-1][:-4]
+        query_image, query_target = self.val_ds[idx]
+        query_image_name = self.val_ds.images[idx].split('/')[-1][:-4]
         # should we run on all classes?
         label = np.random.choice(query_target['labels']).item()
 
