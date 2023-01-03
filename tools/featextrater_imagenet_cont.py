@@ -64,7 +64,7 @@ else:
     sys.exit()
 
 model = SupConResNet('resnet50')
-model.load_state_dict(clean_state_dict(torch.load('/mnt/lustre/yhzhang/SupContrast/save/SupCon/path_models/SupCon_path_resnet50_seed_0_lr_0.005_decay_0.0001_cropsz_224_bsz_64_temp_0.1_trial_0_cosine_pretrain/ckpt_epoch_800.pth')['model']))
+model.load_state_dict(clean_state_dict(torch.load('/mnt/lustre/yhzhang/SupContrast/save/SupCon/path_models/SupCon_path_resnet50_seed_0_lr_0.005_decay_0.0001_cropsz_224_bsz_64_temp_0.1_trial_0_cosine_pretrain/last.pth')['model']))
 model.eval()
 model = model.cuda()
 
