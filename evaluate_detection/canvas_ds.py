@@ -75,8 +75,8 @@ class CanvasDataset(data.Dataset):
 
 
     def __len__(self):
-        # return len(self.train_ds)
-        return len(self.val_ds)
+        return len(self.train_ds)
+        # return len(self.val_ds)
 
     def __getitem__(self, idx):
         
