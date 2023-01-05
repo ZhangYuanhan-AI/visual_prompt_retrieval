@@ -26,6 +26,7 @@ def get_args():
     parser.add_argument('--tta_option', default=0, type=int)
     parser.add_argument('--ckpt', help='resume from checkpoint')
     parser.add_argument('--meta_split', default='0', help='meta_split')
+    parser.add_argument('--feature_name', default='features_vit_val', help='meta_split')
 
     parser.set_defaults(autoregressive=False)
     return parser
@@ -70,7 +71,7 @@ def evaluate(args):
          torchvision.transforms.ToTensor()])
 
     # ds = DatasetColorization(args.data_path, image_transform, mask_transform, meta_split=args.meta_split)
-    ds = DatasetColorization(args.data_path, image_transform, mask_transform)
+    ds = DatasetColorization(args.data_path, image_transform, mask_transform, feature_name=args.feature_name)
 
     eval_dict = {'mse': 0.}
 

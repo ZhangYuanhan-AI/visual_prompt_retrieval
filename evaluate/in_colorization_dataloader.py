@@ -12,7 +12,7 @@ import json
 class DatasetColorization(Dataset):
     def __init__(self, datapath, image_transform, mask_transform, padding: bool = 1,
                  use_original_imgsize: bool = False, flipped_order: bool = False,
-                 reverse_support_and_query: bool = False, random: bool = False, split: str = 'val', meta_split: str = '0'):
+                 reverse_support_and_query: bool = False, random: bool = False, split: str = 'val', meta_split: str = '0', feature_name: str = 'features_vit_val'):
         self.padding = padding
         self.random = random
         self.use_original_imgsize = use_original_imgsize
@@ -26,7 +26,7 @@ class DatasetColorization(Dataset):
         self.split = split
         np.random.seed(5)
         self.indices = np.random.choice(np.arange(0, len(self.ds)-1), size=1000, replace=False)
-
+        self.feature_name = feature_name
         self.image_top50 = self.get_top50_images()
 
 
@@ -35,7 +35,8 @@ class DatasetColorization(Dataset):
         # return len(self.ds)
 
     def get_top50_images(self):
-        with open('/mnt/lustre/yhzhang/data/imagenet/features_supcon_bs64_val/top50-similarity.json') as f:
+        print('current feature name:{}'.format(self.feature_name))
+        with open('/mnt/lustre/yhzhang/data/imagenet/{}/top50-similarity.json'.format(self.feature_name)) as f:
             images_top50 = json.load(f)
 
         return images_top50
