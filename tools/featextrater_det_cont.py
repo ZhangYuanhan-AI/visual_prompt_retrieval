@@ -23,6 +23,7 @@ sys.path.append('/mnt/lustre/yhzhang/visual_prompting')
 from evaluate_detection.voc_orig import VOCDetection 
 
 from resnet import SupConResNet
+from vit import SupVit
 from collections import OrderedDict
 
 
@@ -35,9 +36,9 @@ def clean_state_dict(state_dict):
    return cleaned_state_dict
 
 
-model = SupConResNet('resnet50')
-model.load_state_dict(clean_state_dict(torch.load('/mnt/lustre/yhzhang/SupContrast/weights/supcon.pth')['model_ema']))
-# model.load_state_dict(clean_state_dict(torch.load('/mnt/lustre/yhzhang/SupContrast/save/SupCon/path_models/det_SupCon_path_resnet50_seed_0_lr_0.005_decay_0.0001_cropsz_224_bsz_64_temp_0.1_trial_0_cosine_pretrain/last.pth')['model']))
+model = SupVit('vit_large_patch14_clip_224.laion2b')
+# model.load_state_dict(clean_state_dict(torch.load('/mnt/lustre/yhzhang/SupContrast/weights/supcon.pth')['model_ema']))
+model.load_state_dict(clean_state_dict(torch.load('/mnt/lustre/yhzhang/SupContrast/save/SupCon/path_models/det_SupCon_path_vit_large_patch14_clip_224.laion2b_seed_0_lr_0.005_decay_0.0001_cropsz_224_bsz_64_temp_0.1_trial_0_cosine_pretrain/last.pth')['model']))
 model.eval()
 model = model.cuda()
 
@@ -55,7 +56,7 @@ t.append(T.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225)))
 center_crop = T.Compose(t)
 
 
-save_dir = "/mnt/lustre/share/yhzhang/pascal-5i/VOC2012/features_supcon-in1k-pretrain_det"
+save_dir = "/mnt/lustre/share/yhzhang/pascal-5i/VOC2012/features_supcon-vit-freeze-encoder-in1k-csz224-bsz64-lr0005-ft_val_det"
 if not os.path.exists(save_dir):
     os.makedirs(save_dir)
 else:
