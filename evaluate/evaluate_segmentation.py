@@ -28,8 +28,11 @@ def get_args():
     parser.add_argument('--split', default=0, type=int)
     parser.add_argument('--purple', default=0, type=int)
     parser.add_argument('--flip', default=0, type=int)
+    parser.add_argument('--feature_name', default='features_rn50_val_det', type=str)
     parser.add_argument('--cluster', action='store_true')
     parser.add_argument('--random', action='store_true')
+
+
     return parser
 
 
@@ -114,7 +117,7 @@ def evaluate(args):
         'pascal': pascal_dataloader.DatasetPASCAL,
         'pascal_det': CanvasDataset
     }[args.dataset_type](args.base_dir, fold=args.split, image_transform=image_transform, mask_transform=mask_transform,
-                         flipped_order=args.flip, purple=args.purple, random=args.random, cluster=args.cluster)
+                         flipped_order=args.flip, purple=args.purple, random=args.random, cluster=args.cluster, feature_name=args.feature_name)
     model = prepare_model(args.ckpt, arch=args.model)
     _ = model.to(args.device)
     # Build the transforms:

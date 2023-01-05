@@ -53,7 +53,7 @@ def get_annotated_image(img, boxes, border_width=3, mode='draw', bgcolor='white'
 
 class CanvasDataset(data.Dataset):
 
-    def __init__(self, pascal_path='/mnt/lustre/share/yhzhang/pascal-5i', years=("2012",), random=False, **kwargs):
+    def __init__(self, pascal_path='/mnt/lustre/share/yhzhang/pascal-5i', years=("2012",), random=False, feature_name='features_rn50_val_det', **kwargs):
         self.train_ds = VOCDetectionOrig(pascal_path, years, image_sets=['train'], transforms=None)
         self.val_ds = VOCDetectionOrig(pascal_path, years, image_sets=['val'], transforms=None)
         self.background_transforms = T.Compose([
@@ -63,12 +63,13 @@ class CanvasDataset(data.Dataset):
                 T.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
             ])
         ])
+        self.feature_name = feature_name
         self.transforms = make_transforms('val')
         self.random = random
         self.images_top50 = self.get_top50_images()
 
     def get_top50_images(self):
-        with open('/mnt/lustre/share/yhzhang/pascal-5i/VOC2012/features_supcon-in1k-bsz64_pretrain_det/val-top50-similarity.json') as f:
+        with open('/mnt/lustre/share/yhzhang/pascal-5i/VOC2012/{}/val-top50-similarity.json'.format(self.feature_name)) as f:
             images_top50 = json.load(f)
 
         return images_top50

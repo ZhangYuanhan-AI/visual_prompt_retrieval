@@ -8,53 +8,66 @@ import json
 
 
 
-features_dir = "/mnt/lustre/share/yhzhang/pascal-5i/VOC2012/features_supcon-in1k-bsz64_pretrain_det"
+# features_name_list = [
+#     'features_rn50_val_det',
+#     'features_vit-eva_val_det',
+#     'features_vit-in21k-ft-in1k_val_det',
+#     'features_rn18_val_det',
+#     'features_vit-laion2b-ft-in12k-in1k_val_det',
+#     'features_vit-dino_val_det'
+# ]
 
-origin_features_files = os.listdir(features_dir)
+features_name_list = sys.argv[1:]
 
-features_files = []
-for i in origin_features_files:
-    if not i.endswith('.npz'):
-        continue
+for features_name in features_name_list:
 
-    features_files.append(i)
+    features_dir = os.path.join('/mnt/lustre/share/yhzhang/pascal-5i/VOC2012', features_name)
+
+    origin_features_files = os.listdir(features_dir)
+
+    features_files = []
+    for i in origin_features_files:
+        if not i.endswith('.npz'):
+            continue
+
+        features_files.append(i)
 
 
-feature_val_file = 'features_val.npz'
-feature_train_file = 'features_train.npz'
+    feature_val_file = 'features_val.npz'
+    feature_train_file = 'features_train.npz'
 
-print(f"Processing {feature_val_file} ...")
-sys.stdout.flush()
-val_path = os.path.join(features_dir, feature_val_file)
-file_val_npz = np.load(val_path)
-val_examples = file_val_npz["examples"].tolist()
-val_features = file_val_npz["features"].astype(np.float32)
+    print(f"Processing {feature_val_file} ...")
+    sys.stdout.flush()
+    val_path = os.path.join(features_dir, feature_val_file)
+    file_val_npz = np.load(val_path)
+    val_examples = file_val_npz["examples"].tolist()
+    val_features = file_val_npz["features"].astype(np.float32)
 
-print(f"Processing {feature_train_file} ...")
-sys.stdout.flush()
-train_path = os.path.join(features_dir, feature_train_file)
-file_train_npz = np.load(train_path)
-train_examples = file_train_npz["examples"].tolist()
-train_features = file_train_npz["features"].astype(np.float32)
-# import pdb;pdb.set_trace() #2007_000648
-similarity = dot(val_features,train_features.T)/(linalg.norm(val_features,axis=1, keepdims=True) * linalg.norm(train_features,axis=1, keepdims=True).T)
+    print(f"Processing {feature_train_file} ...")
+    sys.stdout.flush()
+    train_path = os.path.join(features_dir, feature_train_file)
+    file_train_npz = np.load(train_path)
+    train_examples = file_train_npz["examples"].tolist()
+    train_features = file_train_npz["features"].astype(np.float32)
+    # import pdb;pdb.set_trace() #2007_000648
+    similarity = dot(val_features,train_features.T)/(linalg.norm(val_features,axis=1, keepdims=True) * linalg.norm(train_features,axis=1, keepdims=True).T)
 
-# if two features are the same
-for i in range(len(similarity)):
-    similarity[i][i] = 0
+    # if two features are the same
+    for i in range(len(similarity)):
+        similarity[i][i] = 0
 
-similarity_idx = np.argsort(similarity,axis=1)[:,-50:]
+    similarity_idx = np.argsort(similarity,axis=1)[:,-50:]
 
-similarity_idx_dict = {}
-for _, (cur_example, cur_similarity) in enumerate(zip(val_examples,similarity_idx)):
-    img_name = cur_example.strip().split('/')[-1][:-4]
-    # if img_name == '2008_007883':
-    # import pdb;pdb.set_trace()
-    if img_name not in similarity_idx_dict:
-        similarity_idx_dict[img_name] = list(train_examples[idx].strip().split('/')[-1][:-4]+' '+str(idx) for idx in cur_similarity[::-1])
+    similarity_idx_dict = {}
+    for _, (cur_example, cur_similarity) in enumerate(zip(val_examples,similarity_idx)):
+        img_name = cur_example.strip().split('/')[-1][:-4]
+        # if img_name == '2008_007883':
+        # import pdb;pdb.set_trace()
+        if img_name not in similarity_idx_dict:
+            similarity_idx_dict[img_name] = list(train_examples[idx].strip().split('/')[-1][:-4]+' '+str(idx) for idx in cur_similarity[::-1])
 
-print(f"len of similarity is {len(similarity_idx_dict)} ...")
-sys.stdout.flush()
+    print(f"len of similarity is {len(similarity_idx_dict)} ...")
+    sys.stdout.flush()
 
-with open(features_dir+'/val-top50-similarity'+'.json', "w") as outfile:
-    json.dump(similarity_idx_dict, outfile)
+    with open(features_dir+'/val-top50-similarity'+'.json', "w") as outfile:
+        json.dump(similarity_idx_dict, outfile)

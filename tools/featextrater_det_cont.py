@@ -36,7 +36,8 @@ def clean_state_dict(state_dict):
 
 
 model = SupConResNet('resnet50')
-model.load_state_dict(clean_state_dict(torch.load('/mnt/lustre/yhzhang/SupContrast/save/SupCon/path_models/det_SupCon_path_resnet50_seed_0_lr_0.005_decay_0.0001_cropsz_224_bsz_64_temp_0.1_trial_0_cosine_pretrain/last.pth')['model']))
+model.load_state_dict(clean_state_dict(torch.load('/mnt/lustre/yhzhang/SupContrast/weights/supcon.pth')['model_ema']))
+# model.load_state_dict(clean_state_dict(torch.load('/mnt/lustre/yhzhang/SupContrast/save/SupCon/path_models/det_SupCon_path_resnet50_seed_0_lr_0.005_decay_0.0001_cropsz_224_bsz_64_temp_0.1_trial_0_cosine_pretrain/last.pth')['model']))
 model.eval()
 model = model.cuda()
 
@@ -54,56 +55,56 @@ t.append(T.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225)))
 center_crop = T.Compose(t)
 
 
-save_dir = "/mnt/lustre/share/yhzhang/pascal-5i/VOC2012/features_supcon-in1k-bsz64_pretrain_det"
+save_dir = "/mnt/lustre/share/yhzhang/pascal-5i/VOC2012/features_supcon-in1k-pretrain_det"
 if not os.path.exists(save_dir):
     os.makedirs(save_dir)
 else:
     print(f"Directory exists at {save_dir}")
     # sys.exit()
 
+for cur_split in ['val', 'train']:
+# ds = VOCDetection('/mnt/lustre/yhzhang/data/pascal-5i/', ['2012'], image_sets=['val'], transforms=None)
+    ds = VOCDetection('/mnt/lustre/yhzhang/data/pascal-5i/', ['2012'], image_sets=[cur_split], transforms=None)
 
-ds = VOCDetection('/mnt/lustre/yhzhang/data/pascal-5i/', ['2012'], image_sets=['val'], transforms=None)
-# ds = VOCDetection('/mnt/lustre/yhzhang/data/pascal-5i/', ['2012'], image_sets=['train'], transforms=None)
 
+    global_features = torch.tensor([]).cuda()
+    imgs = []
+    examples = []
+    for index in tqdm(range(len(ds))):
+        try:
+            example = ds.images[index]
+            # import pdb;pdb.set_trace()
+            img = Image.open(example).convert('RGB')
+            examples.append(example)
+            img = center_crop(img)
+            imgs.append(img)
+        except:
+            print(f"Disappear {ds.images[index]}")
+            sys.stdout.flush()
 
-global_features = torch.tensor([]).cuda()
-imgs = []
-examples = []
-for index in tqdm(range(len(ds))):
-    try:
-        example = ds.images[index]
-        # import pdb;pdb.set_trace()
-        img = Image.open(example).convert('RGB')
-        examples.append(example)
-        img = center_crop(img)
-        imgs.append(img)
-    except:
-        print(f"Disappear {ds.images[index]}")
-        sys.stdout.flush()
+        if len(imgs) == 128:
 
-    if len(imgs) == 128:
+            imgs = torch.stack(imgs).cuda()
+            # import pdb;pdb.set_trace()
+            with torch.no_grad():
+                features = model(imgs)
+                if len(global_features) == 0:
+                    global_features = features
+                else:
+                    global_features = torch.cat((global_features,features))
 
+            imgs = []
+
+    if len(imgs) > 0:
         imgs = torch.stack(imgs).cuda()
-        # import pdb;pdb.set_trace()
         with torch.no_grad():
             features = model(imgs)
             if len(global_features) == 0:
                 global_features = features
             else:
+                # import pdb;pdb.set_trace()
                 global_features = torch.cat((global_features,features))
 
-        imgs = []
-
-if len(imgs) > 0:
-    imgs = torch.stack(imgs).cuda()
-    with torch.no_grad():
-        features = model(imgs)
-        if len(global_features) == 0:
-            global_features = features
-        else:
-            # import pdb;pdb.set_trace()
-            global_features = torch.cat((global_features,features))
-
-features = global_features.cpu().numpy().astype(np.float32)
-save_file = os.path.join(save_dir, 'features_val')
-np.savez(save_file, examples=examples, features=features)
+    features = global_features.cpu().numpy().astype(np.float32)
+    save_file = os.path.join(save_dir, 'features_{}'.format(cur_split))
+    np.savez(save_file, examples=examples, features=features)
