@@ -22,6 +22,7 @@ import timm
 sys.path.append('/mnt/lustre/yhzhang/visual_prompting')
 from evaluate_detection.voc_orig import VOCDetection 
 
+
 # vit_large_patch14_224_clip_laion2b
 # eva_large_patch14_196_in22k_ft_in22k_in1k
 # resnet50
