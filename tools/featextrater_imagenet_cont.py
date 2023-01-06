@@ -21,6 +21,7 @@ from timm.models import load_checkpoint
 from collections import OrderedDict
  
 from resnet import SupConResNet
+from vit import SupVit
  
  
 def clean_state_dict(state_dict):
@@ -56,16 +57,16 @@ center_crop = T.Compose(t)
 #    sys.exit()
  
  
-save_dir = "/mnt/lustre/yhzhang/data/imagenet/features_supcon-in1k-pretrain_val"
+save_dir = "/mnt/lustre/yhzhang/data/imagenet/features_vit-laion2b-freeze-encoder_val"
 if not os.path.exists(save_dir):
     os.makedirs(save_dir)
 else:
     print(f"Directory exists at {save_dir}")
     sys.exit()
 
-model = SupConResNet('resnet50')
-model.load_state_dict(clean_state_dict(torch.load('/mnt/lustre/yhzhang/SupContrast/weights/supcon.pth')['model_ema']))
-# model.load_state_dict(clean_state_dict(torch.load('/mnt/lustre/yhzhang/SupContrast/save/SupCon/path_models/SupCon_path_resnet50_seed_0_lr_0.005_decay_0.0001_cropsz_224_bsz_64_temp_0.1_trial_0_cosine_pretrain/last.pth')['model']))
+model = SupVit('vit_large_patch14_clip_224.laion2b')
+# model.load_state_dict(clean_state_dict(torch.load('/mnt/lustre/yhzhang/SupContrast/weights/supcon.pth')['model_ema']))
+model.load_state_dict(clean_state_dict(torch.load('/mnt/lustre/yhzhang/SupContrast/save/SupCon/path_models/SupCon_path_vit_large_patch14_clip_224.laion2b_seed_0_lr_0.005_decay_0.0001_cropsz_224_bsz_256_temp_0.1_trial_0_cosine_pretrain-freeze-encoder/last.pth')['model']))
 model.eval()
 model = model.cuda()
 
