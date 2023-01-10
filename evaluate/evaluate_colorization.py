@@ -71,7 +71,7 @@ def evaluate(args):
          torchvision.transforms.ToTensor()])
 
     # ds = DatasetColorization(args.data_path, image_transform, mask_transform, meta_split=args.meta_split)
-    ds = DatasetColorization(args.data_path, image_transform, mask_transform, feature_name=args.feature_name)
+    ds = DatasetColorization(args.data_path, image_transform, mask_transform, feature_name=args.feature_name, seed=args.seed)
 
     eval_dict = {'mse': 0.}
 

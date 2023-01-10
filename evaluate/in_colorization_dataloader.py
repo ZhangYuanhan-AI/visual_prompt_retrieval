@@ -12,7 +12,7 @@ import json
 class DatasetColorization(Dataset):
     def __init__(self, datapath, image_transform, mask_transform, padding: bool = 1,
                  use_original_imgsize: bool = False, flipped_order: bool = False,
-                 reverse_support_and_query: bool = False, random: bool = False, split: str = 'val', meta_split: str = '0', feature_name: str = 'features_vit_val'):
+                 reverse_support_and_query: bool = False, random: bool = False, split: str = 'val', meta_split: str = '0', feature_name: str = 'features_vit_val', seed: int = 0):
         self.padding = padding
         self.random = random
         self.use_original_imgsize = use_original_imgsize
@@ -24,7 +24,8 @@ class DatasetColorization(Dataset):
         # self.ds = self.build_img_metadata(os.path.join(datapath, 'meta/{}.txt'.format(split)))
         self.flipped_order = flipped_order
         self.split = split
-        np.random.seed(5)
+        self.seed = seed
+        np.random.seed(seed)
         self.indices = np.random.choice(np.arange(0, len(self.ds)-1), size=1000, replace=False)
         self.feature_name = feature_name
         self.image_top50 = self.get_top50_images()
