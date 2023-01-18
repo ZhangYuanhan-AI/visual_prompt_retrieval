@@ -11,7 +11,7 @@ output_list = [
     # 'output_rn18',
     # 'output_rn50',
     # "output"
-    # 'output',
+    'output',
     'output_vit-in21k-ft-in1k_val',
     'output_vit-eva_val',
     'output_val',
@@ -22,7 +22,7 @@ output_list = [
 
 root = '/mnt/lustre/yhzhang/visual_prompting/evaluate/output_det_images'
  
-for foldid in ["0","1","2","3"]:
+for foldid in ["0"]:
     save_dir = f"{root}/output_{foldid}_concat_sup_unsup"
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
@@ -45,23 +45,23 @@ for foldid in ["0","1","2","3"]:
             IoU = round(eval(result)['iou'],4)
             IoU_dict[img_id].append(IoU)
 
-    # random_dir = f"{root}/{output_list[0]}_{foldid}"
-    vit_dir = f"{root}/{output_list[0]}_{foldid}"
-    mim_dir = f"{root}/{output_list[1]}_{foldid}"
-    clip_dir = f"{root}/{output_list[2]}_{foldid}"
-    retriver_dir = f"{root}/{output_list[3]}_{foldid}"
+    random_dir = f"{root}/{output_list[0]}_{foldid}"
+    vit_dir = f"{root}/{output_list[1]}_{foldid}"
+    mim_dir = f"{root}/{output_list[2]}_{foldid}"
+    clip_dir = f"{root}/{output_list[3]}_{foldid}"
+    retriver_dir = f"{root}/{output_list[4]}_{foldid}"
 
     for i in tqdm(IoU_dict):  
         # 
         if IoU_dict[i][-1] - max(IoU_dict[i][:-1]) >= 0.05:
             # import pdb;pdb.set_trace()
-            # random_img = os.path.join(random_dir, 'generated_{}.png'.format(i))
+            random_img = os.path.join(random_dir, 'generated_{}.png'.format(i))
             retriver_img = os.path.join(retriver_dir, 'generated_{}_0.png'.format(i))
             vit_img = os.path.join(vit_dir, 'generated_{}_0.png'.format(i))
             mim_img = os.path.join(mim_dir, 'generated_{}_0.png'.format(i))
             clip_img = os.path.join(clip_dir, 'generated_{}_0.png'.format(i))
 
-            # img1=cv2.imread(random_img)
+            img1=cv2.imread(random_img)
             img2=cv2.imread(vit_img)
             img3=cv2.imread(mim_img)
             img4=cv2.imread(clip_img)
@@ -71,7 +71,7 @@ for foldid in ["0","1","2","3"]:
             # import pdb;pdb.set_trace()
             # try:
             # img_out = np.concatenate((img_out,img_tmp), axis=1)
-            img_out = np.concatenate((img2,img3,img4, img5), axis=1)
+            img_out = np.concatenate((img1, img2,img3,img4, img5), axis=1)
             # cv2.imshow("IMG",img_out)
             # import pdb;pdb.set_trace()
-            cv2.imwrite(f"{save_dir}/generated_{i}_{IoU_dict[i][0]}_{IoU_dict[i][1]}_{IoU_dict[i][2]}_{IoU_dict[i][3]}.png",img_out)
+            cv2.imwrite(f"{save_dir}/generated_{i}_{IoU_dict[i][0]}_{IoU_dict[i][1]}_{IoU_dict[i][2]}_{IoU_dict[i][3]}_{IoU_dict[i][4]}.png",img_out)
