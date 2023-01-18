@@ -62,11 +62,19 @@ def evaluate(args):
     # Build the transforms:
     padding = 1
 
+    # image_transform = torchvision.transforms.Compose(
+    #     [torchvision.transforms.CenterCrop((224 // 2 - padding, 224 // 2 - padding)),
+    #      torchvision.transforms.ToTensor()])
+    # mask_transform = torchvision.transforms.Compose(
+    #     [torchvision.transforms.CenterCrop((224 // 2 - padding, 224 // 2 - padding)),
+    #      torchvision.transforms.Grayscale(3),
+    #      torchvision.transforms.ToTensor()])
+
     image_transform = torchvision.transforms.Compose(
-        [torchvision.transforms.CenterCrop((224 // 2 - padding, 224 // 2 - padding)),
+        [torchvision.transforms.Resize((224 // 2 - padding, 224 // 2 - padding)),
          torchvision.transforms.ToTensor()])
     mask_transform = torchvision.transforms.Compose(
-        [torchvision.transforms.CenterCrop((224 // 2 - padding, 224 // 2 - padding)),
+        [torchvision.transforms.Resize((224 // 2 - padding, 224 // 2 - padding)),
          torchvision.transforms.Grayscale(3),
          torchvision.transforms.ToTensor()])
 
@@ -88,12 +96,12 @@ def evaluate(args):
             # end_model = time.time()
             # print('model time: {}'.format(end_model-start_model))
 
-            # if args.output_dir:
+            if args.output_dir:
                 # Image.fromarray(np.uint8(original_image)).save(
                 #     os.path.join(args.output_dir, f'original_{idx}.png'))
-                # if sim_idx in [0, 49]:
-                    # Image.fromarray(np.uint8(generated_result)).save(
-                    #     os.path.join(args.output_dir, f'generated_{idx}_{sim_idx}.png'))
+                if sim_idx in [0, 49]:
+                    Image.fromarray(np.uint8(generated_result)).save(
+                        os.path.join(args.output_dir, f'generated_{idx}_{sim_idx}.png'))
 
             # if args.output_dir:
             #     Image.fromarray(np.uint8(generated_result)).save(
