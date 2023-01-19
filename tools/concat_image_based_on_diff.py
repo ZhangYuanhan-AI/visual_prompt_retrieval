@@ -53,7 +53,7 @@ for foldid in ["0"]:
 
     for i in tqdm(IoU_dict):  
         # 
-        if  min(IoU_dict[i][:-1])-IoU_dict[i][-1] >= 0.05:
+        if  min(IoU_dict[i][:-1])-IoU_dict[i][-1] >= 0.01:
             # import pdb;pdb.set_trace()
             gt_img = os.path.join(random_dir, 'original_{}.png'.format(i))
             random_img = os.path.join(random_dir, 'generated_{}.png'.format(i))
