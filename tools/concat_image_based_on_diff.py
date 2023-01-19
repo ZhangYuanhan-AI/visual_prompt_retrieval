@@ -55,12 +55,14 @@ for foldid in ["0"]:
         # 
         if  min(IoU_dict[i][:-1])-IoU_dict[i][-1] >= 0.05:
             # import pdb;pdb.set_trace()
+            gt_img = os.path.join(random_dir, 'original_{}.png'.format(i))
             random_img = os.path.join(random_dir, 'generated_{}.png'.format(i))
             retriver_img = os.path.join(retriver_dir, 'generated_{}_0.png'.format(i))
             vit_img = os.path.join(vit_dir, 'generated_{}_0.png'.format(i))
             mim_img = os.path.join(mim_dir, 'generated_{}_0.png'.format(i))
             clip_img = os.path.join(clip_dir, 'generated_{}_0.png'.format(i))
 
+            img0=cv2.imread(gt_img)
             img1=cv2.imread(random_img)
             img2=cv2.imread(vit_img)
             img3=cv2.imread(mim_img)
@@ -71,7 +73,7 @@ for foldid in ["0"]:
             # import pdb;pdb.set_trace()
             # try:
             # img_out = np.concatenate((img_out,img_tmp), axis=1)
-            img_out = np.concatenate((img1,img2,img3,img4, img5), axis=1)
+            img_out = np.concatenate((img0,img1,img2,img3,img4, img5), axis=1)
             # cv2.imshow("IMG",img_out)
             # import pdb;pdb.set_trace()
             cv2.imwrite(f"{save_dir}/generated_{i}_{IoU_dict[i][0]}_{IoU_dict[i][1]}_{IoU_dict[i][2]}_{IoU_dict[i][3]}_{IoU_dict[i][4]}.png",img_out)
