@@ -33,13 +33,14 @@ def clean_state_dict(state_dict):
    return cleaned_state_dict
    
 # load the image transformer
+size = 224
 t = []
 # maintain same ratio w.r.t. 224 images
 # follow https://github.com/facebookresearch/mae/blob/main/util/datasets.py
 # t.append(T.Resize((32,32), interpolation=Image.BICUBIC))
 # t.append(T.CenterCrop(32))
-t.append(T.Resize((224,224), interpolation=Image.BICUBIC))
-t.append(T.CenterCrop(224))
+t.append(T.Resize((size,size), interpolation=Image.BICUBIC))
+t.append(T.CenterCrop(size))
 t.append(T.ToTensor())
 t.append(T.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225)))
 center_crop = T.Compose(t)
@@ -57,16 +58,17 @@ center_crop = T.Compose(t)
 #    sys.exit()
  
  
-save_dir = "/mnt/lustre/yhzhang/data/imagenet/features_vit-laion2b-freeze-encoder_val"
+save_dir = "/mnt/lustre/yhzhang/data/imagenet/features_vit-freeze-encoder_val"
 if not os.path.exists(save_dir):
     os.makedirs(save_dir)
 else:
     print(f"Directory exists at {save_dir}")
     sys.exit()
 
-model = SupVit('vit_large_patch14_clip_224.laion2b')
+model_name = 'vit_large_patch16_224.augreg_in21k_ft_in1k'
+model = SupVit(model_name)
 # model.load_state_dict(clean_state_dict(torch.load('/mnt/lustre/yhzhang/SupContrast/weights/supcon.pth')['model_ema']))
-model.load_state_dict(clean_state_dict(torch.load('/mnt/lustre/yhzhang/SupContrast/save/SupCon/path_models/SupCon_path_vit_large_patch14_clip_224.laion2b_seed_0_lr_0.005_decay_0.0001_cropsz_224_bsz_256_temp_0.1_trial_0_cosine_pretrain-freeze-encoder/last.pth')['model']))
+model.load_state_dict(clean_state_dict(torch.load(f'/mnt/lustre/yhzhang/SupContrast/save/SupCon/path_models/SupCon_path_{model_name}_seed_0_lr_0.005_decay_0.0001_cropsz_{size}_bsz_256_temp_0.1_trial_0_cosine_pretrain-freeze-encoder/last.pth')['model']))
 model.eval()
 model = model.cuda()
 
