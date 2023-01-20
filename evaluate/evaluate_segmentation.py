@@ -28,6 +28,7 @@ def get_args():
     parser.add_argument('--split', default=0, type=int)
     parser.add_argument('--purple', default=0, type=int)
     parser.add_argument('--flip', default=0, type=int)
+    parser.add_argument('--size', default=224, type=int)
     parser.add_argument('--feature_name', default='features_rn50_val_det', type=str)
     parser.add_argument('--cluster', action='store_true')
     parser.add_argument('--random', action='store_true')

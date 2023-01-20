@@ -36,27 +36,29 @@ def clean_state_dict(state_dict):
    return cleaned_state_dict
 
 
-model = SupVit('vit_large_patch14_clip_224.laion2b')
-# model.load_state_dict(clean_state_dict(torch.load('/mnt/lustre/yhzhang/SupContrast/weights/supcon.pth')['model_ema']))
-model.load_state_dict(clean_state_dict(torch.load('/mnt/lustre/yhzhang/SupContrast/save/SupCon/path_models/det_SupCon_path_vit_large_patch14_clip_224.laion2b_seed_0_lr_0.005_decay_0.0001_cropsz_224_bsz_64_temp_0.1_trial_0_cosine_pretrain/last.pth')['model']))
-model.eval()
-model = model.cuda()
 
 
-# import pdb;pdb.set_trace()
 
 # load the image transformer
 t = []
 # maintain same ratio w.r.t. 224 images
 # follow https://github.com/facebookresearch/mae/blob/main/util/datasets.py
-t.append(T.Resize((224,224), interpolation=Image.BICUBIC))
-t.append(T.CenterCrop(224))
+size = 196
+t.append(T.Resize((size,size), interpolation=Image.BICUBIC))
+t.append(T.CenterCrop(size))
 t.append(T.ToTensor())
 t.append(T.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225)))
 center_crop = T.Compose(t)
 
+model_name = 'eva_large_patch14_196.in22k_ft_in22k_in1k'
+model = SupVit(model_name)
+# model.load_state_dict(clean_state_dict(torch.load('/mnt/lustre/yhzhang/SupContrast/weights/supcon.pth')['model_ema']))
+model.load_state_dict(clean_state_dict(torch.load(f'/mnt/lustre/yhzhang/SupContrast/save/SupCon/path_models/det_SupCon_path_{model_name}_seed_0_lr_0.005_decay_0.0001_cropsz_{size}_bsz_64_temp_0.1_trial_0_cosine_pretrain/last.pth')['model']))
+model.eval()
+model = model.cuda()
 
-save_dir = "/mnt/lustre/share/yhzhang/pascal-5i/VOC2012/features_supcon-vit-freeze-encoder-in1k-csz224-bsz64-lr0005-ft_val_det"
+
+save_dir = f"/mnt/lustre/share/yhzhang/pascal-5i/VOC2012/features_supcon-vit-freeze-encoder-eva-csz{size}-bsz64-lr0005-ft_val_det"
 if not os.path.exists(save_dir):
     os.makedirs(save_dir)
 else:
