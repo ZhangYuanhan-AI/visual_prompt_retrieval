@@ -23,7 +23,7 @@ output_list = [
 root = '/mnt/lustre/yhzhang/visual_prompting/evaluate/output_color_images'
  
 for foldid in ["0"]:
-    save_dir = f"{root}/output_{foldid}_concat_sup_unsup"
+    save_dir = f"{root}/output_{foldid}_concat_sup_vit"
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
     
@@ -53,7 +53,7 @@ for foldid in ["0"]:
 
     for i in tqdm(IoU_dict):  
         # 
-        if  min(IoU_dict[i][:-1])-IoU_dict[i][-1] >= 0.01:
+        if  IoU_dict[i][1]-IoU_dict[i][-1] >= 0.2:
             # import pdb;pdb.set_trace()
             gt_img = os.path.join(random_dir, 'original_{}.png'.format(i))
             random_img = os.path.join(random_dir, 'generated_{}.png'.format(i))
@@ -76,4 +76,6 @@ for foldid in ["0"]:
             img_out = np.concatenate((img0,img1,img2,img3,img4, img5), axis=1)
             # cv2.imshow("IMG",img_out)
             # import pdb;pdb.set_trace()
-            cv2.imwrite(f"{save_dir}/generated_{i}_{IoU_dict[i][0]}_{IoU_dict[i][1]}_{IoU_dict[i][2]}_{IoU_dict[i][3]}_{IoU_dict[i][4]}.png",img_out)
+            cv2.imwrite(f"{save_dir}/generated_{i}_{IoU_dict[i][1]}_{IoU_dict[i][4]}_gt.png",img0)
+            cv2.imwrite(f"{save_dir}/generated_{i}_{IoU_dict[i][1]}_{IoU_dict[i][4]}_vit.png",img2)
+            cv2.imwrite(f"{save_dir}/generated_{i}_{IoU_dict[i][1]}_{IoU_dict[i][4]}_sup.png",img5)
