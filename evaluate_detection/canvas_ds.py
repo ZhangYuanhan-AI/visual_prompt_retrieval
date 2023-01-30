@@ -81,7 +81,7 @@ class CanvasDataset(data.Dataset):
 
     def __getitem__(self, idx):
         
-        # import pdb;pdb.set_trace()
+        import pdb;pdb.set_trace()
         idx, sim_idx = idx
         # query_image, query_target = self.train_ds[idx]
         # query_image_name = self.train_ds.images[idx].split('/')[-1][:-4]
