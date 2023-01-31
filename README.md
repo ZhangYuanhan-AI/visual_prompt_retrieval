@@ -31,7 +31,7 @@ We study on the effect of in-context examples in computer vision and the problem
 ## Updatas
 [01/2023] [arXiv](https://arxiv.org/abs/2206.04673) paper has been **released**.
 
-[01/2023] The code for foureground segmentation is released.
+[01/2023] The code for foureground segmentation has been **released**.
 
 ## Environment Setup
 ```
@@ -72,7 +72,7 @@ Part of the code is borrowed from [visual prompt](https://github.com/amirbar/vis
 
 <div align="center">
 
-![visitors](https://visitor-badge.glitch.me/badge?page_id=Davidzhangyuanhan.NOAH&left_color=green&right_color=red)
+![visitors](https://visitor-badge.glitch.me/badge?page_id=ZhangYuanhan-AI.visual_prompt_retrieval&left_color=green&right_color=red)
 
 </div>
 
