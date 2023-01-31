@@ -72,7 +72,7 @@ If you use this code in your research, please kindly cite this work.
 }
 ```
 
-## Acknoledgments
+## Acknowledgments
 Part of the code is borrowed from [visual prompt](https://github.com/amirbar/visual_prompting), [SupContrast](https://github.com/HobbitLong/SupContrast), [timm](https://github.com/rwightman/pytorch-image-models) and [mmcv](https://github.com/open-mmlab/mmcv).
 
 <div align="center">
