@@ -16,7 +16,7 @@
 
 <h3>TL;DR</h3>
     
-We study on the effect of in-context examples in computer vision. We propose a **P**rompt **R**etrieval framework to automatically select examples, consisting of an unsupervised method (UnsupPR) and a supervised method (SupPR). 
+We study on the effect of in-context examples in computer vision. We propose a **P**rompt **R**etrieval framework to automatically select examples, consisting of an unsupervised (UnsupPR) and a supervised method (SupPR). 
 
 ---
 
