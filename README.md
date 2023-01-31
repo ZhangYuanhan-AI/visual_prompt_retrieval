@@ -58,7 +58,7 @@ Here, Random is the baseline method in [visual prompt](https://github.com/amirba
 
 
 ## Model
-The SupPR models for each pascal-5<sup>i</sup> split is uploaded in [link](https://entuedu-my.sharepoint.com/:f:/g/personal/yuanhan002_e_ntu_edu_sg/EoUMjMA6FcFFtJPzW9Stm5ABOZvUJ0YyaJvtP9IDI_rk4Q?e=eL62Y6)
+The SupPR models for each pascal-5<sup>i</sup> split is uploaded in [link](https://entuedu-my.sharepoint.com/:f:/g/personal/yuanhan002_e_ntu_edu_sg/EoUMjMA6FcFFtJPzW9Stm5ABOZvUJ0YyaJvtP9IDI_rk4Q?e=eL62Y6).
 
 
 ## Citation
