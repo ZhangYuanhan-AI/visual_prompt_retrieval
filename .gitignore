@@ -1,0 +1,23 @@
+__pycache__/*
+output/*
+output_dir/*
+util/__pycache__/*
+evaluate/__pycache__/*
+slurm*
+wandb/*
+evaluate/output_*/
+evaluate/logs/
+evaluate/output*/
+.ipynb_checkpoints/
+*/__pycache__/
+*.ckpt
+# *.png
+# *.jpeg
+weights/
+output*/
+logs/
+*pth
+test_images/*
+figures_datasets/*
+demo*
+
