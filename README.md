@@ -21,7 +21,7 @@ We study on the effect of in-context examples in computer vision. We propose a *
 ---
 
 <p align="center">
-  <a href="https://arxiv.org/abs/2206.04673" target='_blank'>[arXiv]</a>
+  <a href="https://arxiv.org/abs/2301.13670" target='_blank'>[arXiv]</a>
 </p>
 
 </div>
@@ -29,7 +29,7 @@ We study on the effect of in-context examples in computer vision. We propose a *
 
 
 ## Updatas
-[01/2023] [arXiv](https://arxiv.org/abs/2206.04673) paper has been **released**.
+[01/2023] [arXiv](https://arxiv.org/abs/2301.13670) paper has been **released**.
 
 [01/2023] The code for foureground segmentation has been **released**.
 
