@@ -15,12 +15,12 @@ python tools/calculate_similariity.py features_vit-laion2b trn trn
 sh evaluate/srun_seg_evaluate.sh features_vit-laion2b_trn output_vit-laion2b-clip_trn
 ```
 
-## Step3: Get positive and negative
+## Step4: Get positive and negative
 ```
 python tools/get_positive_negative.py features_vit-laion2b_trn output_vit-laion2b-clip_trn
 ```
 
-## Step4: Train the feature extractor for in-context learning
+## Step5: Train the feature extractor for in-context learning
 ```
 git clone https://github.com/ZhangYuanhan-AI/SupContrast.git
 git checkout pre-train-vit-freeze-encoder

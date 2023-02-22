@@ -39,7 +39,7 @@ class DatasetPASCAL(Dataset):
         self.mask_transform = mask_transform
  
         self.class_ids = self.build_class_ids()
-        self.img_metadata_val = self.build_img_metadata('val')
+        self.img_metadata_val = self.build_img_metadata('val') if '_val' in feature_name else self.build_img_metadata('trn') 
         self.img_metadata_trn = self.build_img_metadata('trn')
         self.feature_name = feature_name
         self.seed = seed
