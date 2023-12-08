@@ -77,7 +77,7 @@ Part of the code is borrowed from [visual prompt](https://github.com/amirbar/vis
 
 <div align="center">
 
-![visitors](https://visitor-badge.glitch.me/badge?page_id=ZhangYuanhan-AI.visual_prompt_retrieval&left_color=green&right_color=red)
+[![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2FZhangYuanhan-AI%2Fvisual_prompt_retrieval&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=visitors&edge_flat=false)](https://hits.seeyoufarm.com)
 
 </div>
 
